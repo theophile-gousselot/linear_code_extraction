@@ -1,1 +1,1 @@
-# LOG - Simulations outputs
+# LOG - Simulation outputs
