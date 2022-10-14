@@ -30,16 +30,15 @@ module tb_top_verilator
     logic                   exit_valid;
     logic [31:0]            exit_value;
 
-    integer 				dump_file;
+    integer 				extracted_code_file;
     integer 				alarm_file;
     integer                 final_cycle_file;
     integer                 final_addr_file;
 	integer					delay_linear_dump;
 	integer					rtl_id;
     
-    `define MAX_BB_LEN 15
-    `define MAX_INSTR_EXE_CYCLES 
-    `define LDM_DETECTOR
+    `define MAX_BB_LEN 20
+    `define LCE_DETECTOR
 
     // we either load the provided firmware or execute a small test program that
     // doesn't do more than an infinite loop with some I/O
@@ -55,9 +54,9 @@ module tb_top_verilator
             $readmemh(firmware, cv32e40p_tb_wrapper_i.ram_i.dp_ram_i.mem);
             
             
-            if($test$plusargs("linear_dump")) begin
-                dump_file = $fopen("memory_dump.txt","w"); // open_mem_dump
-                $fclose(dump_file);
+            if($test$plusargs("lce_delay")) begin
+                extracted_code_file = $fopen("extracted_code.txt","w"); // open_mem_dump
+                $fclose(extracted_code_file);
             end
 
             final_cycle_file = $fopen("final_cycle_log.txt","w"); // open_mem_dump
@@ -66,14 +65,11 @@ module tb_top_verilator
             final_addr_file = $fopen("final_addr_log.txt","w"); // open_mem_dump
             $fclose(final_addr_file);
 
-            if($value$plusargs("rtl=%d", rtl_id)) begin                             
-                if (rtl_id >= 1) begin
-                    alarm_file = $fopen("ldm_detector_alarm_log.txt","w"); // open_mem_dump
-                    $fclose(alarm_file);
-                end
-            end
-
-
+            `ifdef LCE_DETECTOR
+            alarm_file = $fopen("lce_detector_alarm_log.txt","w"); // open_mem_dump
+            $fclose(alarm_file);
+            `endif
+            
         end else begin
             $display("No firmware specified");
             $finish;
@@ -81,13 +77,13 @@ module tb_top_verilator
     end
 
     always_ff @(posedge clk_i, negedge rst_ni) begin
-        if($value$plusargs("delay_linear_dump=%d", delay_linear_dump)) begin
-            dump_file = $fopen("memory_dump.txt", "a"); // open_mem_dump
-            $fdisplay(dump_file, "%u\n", cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.instr_rdata_i);
+        if($value$plusargs("lce_delay=%d", delay_linear_dump)) begin
+            extracted_code_file = $fopen("extracted_code.txt", "a"); // open_mem_dump
+            $fdisplay(extracted_code_file, "%u\n", cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.instr_rdata_i);
 			if(cycle_cnt_q >= delay_linear_dump) begin			
-                force cv32e40p_tb_wrapper_i.cv32e40p_core_i.id_stage_i.pc_set_o = 1'h0; //This line will be automatically changes
+                force cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[6]=1'b0;force cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[4:2]=3'b101; //This line will be automatically changes
 			end
-            $fclose(dump_file);
+            $fclose(extracted_code_file);
         end
     end
 
@@ -127,36 +123,14 @@ module tb_top_verilator
     end
 
     // check if alarm is raise
-    `ifdef LDM_DETECTOR
+    `ifdef LCE_DETECTOR
     always_ff @(posedge clk_i, negedge rst_ni) begin
-        if($value$plusargs("rtl=%d", rtl_id)) begin
-            if (rtl_id >= 1) begin
-                // No alarm in the init cv32e40p rtl (rtl_id=0)
-                if (cv32e40p_tb_wrapper_i.cv32e40p_core_i.ldm_detector_i.alarm_o) begin
-                    
-                    alarm_file = $fopen("ldm_detector_alarm_log.txt", "w");
-                    $fdisplay(alarm_file, "%0d", cycle_cnt_q);
-                    $fclose(alarm_file);
+        if (cv32e40p_tb_wrapper_i.cv32e40p_core_i.lce_detector_i.alarm_o) begin
+            
+            alarm_file = $fopen("lce_detector_alarm_log.txt", "w");
+            $fdisplay(alarm_file, "%0d", cycle_cnt_q);
+            $fclose(alarm_file);
 
-                    final_cycle_file = $fopen("final_cycle_log.txt", "w");
-                    $fdisplay(final_cycle_file, "%0d", cycle_cnt_q);
-                    $fclose(final_cycle_file);
-
-                    final_addr_file = $fopen("final_addr_log.txt", "w");
-                    $fdisplay(final_addr_file, "%0d", cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.pc_if_o);
-                    $fclose(final_addr_file);
-
-                    $display("%m @ %0t: LDM DETECTOR ALARM IS RAISE", $time);
-                    $finish;
-                end
-            end
-		end
-    end
-    `endif
-
-    // check if we succeded
-    always_ff @(posedge clk_i, negedge rst_ni) begin
-		if (tests_passed_o) begin
             final_cycle_file = $fopen("final_cycle_log.txt", "w");
             $fdisplay(final_cycle_file, "%0d", cycle_cnt_q);
             $fclose(final_cycle_file);
@@ -164,6 +138,23 @@ module tb_top_verilator
             final_addr_file = $fopen("final_addr_log.txt", "w");
             $fdisplay(final_addr_file, "%0d", cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.pc_if_o);
             $fclose(final_addr_file);
+
+            $display("%m @ %0t: LCE DETECTOR ALARM IS RAISE", $time);
+            $finish;
+        end
+end
+`endif
+
+// check if we succeded
+always_ff @(posedge clk_i, negedge rst_ni) begin
+    if (tests_passed_o) begin
+        final_cycle_file = $fopen("final_cycle_log.txt", "w");
+        $fdisplay(final_cycle_file, "%0d", cycle_cnt_q);
+        $fclose(final_cycle_file);
+
+        final_addr_file = $fopen("final_addr_log.txt", "w");
+        $fdisplay(final_addr_file, "%0d", cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.pc_if_o);
+        $fclose(final_addr_file);
 
 			$display("%m @ %0t / %0d instr exec: ALL TESTS PASSED", $time, count_instr_exec);
 			$finish;
@@ -211,9 +202,8 @@ module tb_top_verilator
     // wrapper for cv32e40p, the memory system and stdout peripheral
     cv32e40p_tb_wrapper
         #(
-        `ifdef LDM_DETECTOR
+        `ifdef LCE_DETECTOR
           .MAX_BB_LEN(`MAX_BB_LEN),                                                    
-          .MAX_INSTR_EXE_CYCLES(`MAX_INSTR_EXE_CYCLES),
         `endif 
           .INSTR_RDATA_WIDTH (INSTR_RDATA_WIDTH),
           .RAM_ADDR_WIDTH    (RAM_ADDR_WIDTH),
