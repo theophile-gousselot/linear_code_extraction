@@ -3,3 +3,5 @@ memory_dump.bin
 testbench_verilator
 results
 sim_results
+*.txt
+*.vcd
