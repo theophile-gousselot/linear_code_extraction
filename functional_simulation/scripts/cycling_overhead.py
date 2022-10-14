@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 style.use('tableau-colorblind10')
 
-LOG_FILE_OVERHEAD = "../log/linear_dump_attack_overhead.log"
+LOG_FILE_OVERHEAD = "../log/lce_overhead.log"
 PLOT_PATH = "../log/plot/"
 
 NEARLY_ALL_BENCHMARKS_NAME = [
@@ -139,7 +139,7 @@ def plot_cycles_overhead(benchmarks_names):
     #plt.rc('ytick', labelsize='x-large')
     #plt.rc('text', usetex=True)
     if args.save_fig:
-        plt.figure(figsize=(4, 2.5))
+        plt.figure(figsize=(5, 3))
     else:
         plt.figure(figsize=(9, 6))
 
@@ -156,31 +156,31 @@ def plot_cycles_overhead(benchmarks_names):
                 bench_name += f"-{o[0][0:3]}"
             avg_overhead = avg_overhead / len(overhead)
             if rtl == 11:
-                label_text = "ADI-SM"
+                label_text = "DIM"
                 latency = np.array(latency[1:]) - 2
                 avg_overhead = avg_overhead[1:]
                 marker = "x"
             if rtl == 2:
-                label_text = "ASM"
+                label_text = "SMM"
                 marker = "+"
             plt.plot(latency, (np.array(avg_overhead)-1)*100, f"k{marker}-", ms=5, linewidth=0.5, label=f"Average ({label_text})")
 
 
             if rtl == 2:
-                plt.plot([l for l in range(latency[0],latency[-1]+1)], (np.array(overhead_theoretical)-1)*100, "k--", linewidth=1, label="Theoritical estimation (ASM)")
+                plt.plot([l for l in range(latency[0],latency[-1]+1)], (np.array(overhead_theoretical)-1)*100, "k--", linewidth=1, label="Theoritical estimation (SMM)")
 
         else:
             cut = 0
             if rtl == 11:
-                label_text = "ADI-SM"
+                label_text = "DIM"
                 latency = np.array(latency[1:]) - 2
                 cut = 1
                 marker = "x"
             if rtl == 2:
-                label_text = "ASM"
+                label_text = "SMM"
                 marker = "+"
-                plt.plot([l for l in range(latency[0],latency[-1]+1)], (np.array(overhead_theoretical)-1)*100, "k--", linewidth=1, label="Theoritical estimation (ASM)")
-                #plt.plot(latency,(np.array(overhead_theoretical)-1)*100, "-", linewidth=20, alpha=0.4, label="Theoritical estimation (ASM)")
+                plt.plot([l for l in range(latency[0],latency[-1]+1)], (np.array(overhead_theoretical)-1)*100, "k--", linewidth=1, label="Theoritical estimation (SMM)")
+                #plt.plot(latency,(np.array(overhead_theoretical)-1)*100, "-", linewidth=20, alpha=0.4, label="Theoritical estimation (SMM)")
 
             bench_name = ''
             for o in overhead:
@@ -193,8 +193,8 @@ def plot_cycles_overhead(benchmarks_names):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.gca().invert_xaxis()
-    plt.xlabel("Initialisation value of the insert block (x)")  #("Latency detection (in instructions)")
-    plt.ylabel("Cycles overhead (%)")
+    plt.xlabel("Worst wanted detection latency (in instructions executed)")  #("Latency detection (in instructions)")
+    plt.ylabel("Clock cycles overhead (%)")
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     if args.save_fig:
         if args.average:

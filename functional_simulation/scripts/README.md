@@ -1,14 +1,38 @@
+<style>
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
 # Simulation
-
-
-
 
 ## Launch quickly execution simulation and analysis.
 ### Simulate execution
 
+explains one simulation -> one line of outputs in log file
+
  with the performing of an LCE
 Simulate execution with the performing of an LCE on a protected core
 
+
+
+### Linear extraction strategies
+
+Three different strategies lead to a linear execution.
+*Force* statement emulates the microprobes.
+
+|           Strategy          	|                                                                                     Forcing                                                                                    	|
+|:---------------------------:	|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:	|
+|        (I) - Feeezing       	| cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[6]=1'b0<br>cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[4:2]=3'b101 	|
+|   (II) - Instruction edits  	|                                                                 cv32e40p_core_i.if_stage_i.instr_valid = 1'h0                                                                 	|
+| (III) - Linear mode forcing 	|                                                                   cv32e40p_core_i.id_stage_i.pc_set_o = 1'h0                                                                   	|
+
+<img src="../../doc/diagram_lce_linear_extraction_strategies-1.jpg" alt="drawing" width="400" class="center"/>
+
+
+### Outputs
 Some outputs are avilable at the bottom of log/linear_dump_attack.log file.
 
 ``` bash

@@ -10,7 +10,7 @@ fi
 eval set -- "$VALID_ARGS"
 while [ : ]; do
   case "$1" in
-    -r | --rtl) RTL=$2;echo ${RTL[@]}; echo $2; shift 2; ;;
+    -r | --rtl) RTLS=$2;echo ${RTLS[@]}; echo $2; shift 2; ;;
     -b | --bb_len) BB_LEN=$2; shift 2; ;;
     -f | --firmwares) FIRMWARES=$2; shift 2; ;;
     -p | --no_plot_cycling_overhead) PLOT_CYCLING_OVERHEAD=0; shift 1; ;;
@@ -20,7 +20,7 @@ while [ : ]; do
 done
 # csr_instr_asm csr_instructions dhrystone fibonacci generic_exception_test hello-world illegal load_store_rs1_zero misalign
 
-[ -z ${RTL+x} ] && RTL=(0 11)
+[ -z ${RTLS+x} ] && RTLS=(INIT SMM)
 [ -z ${BB_LEN+x} ] && BB_LEN=(10 20) #(`seq 6 1 50`) #(30 25 20 15 10 5)
 [ -z ${FIRMWARES+x} ] && FIRMWARES=(fibonacci) #(csr_instr_asm csr_instructions dhrystone fibonacci hello-world load_store_rs1_zero)
 [ -z ${PLOT_CYCLING_OVERHEAD+x} ] && PLOT_CYCLING_OVERHEAD=1 #(csr_instr_asm csr_instructions dhrystone fibonacci hello-world load_store_rs1_zero)
@@ -29,13 +29,13 @@ FIRMWARES_OFFSET=(-3716 -1848 -1884)
 ATTACKS=(0) # (0 1 2 3) #(0 1 2 3 4)
 
 LOG_PATH="../log/"
-LOG_FILE="../log/linear_dump_attack.log"
-BACKUP_LOG_FILE="../log/linear_dump_attack_backup.log"
-LOG_FILE_OVERHEAD="../log/linear_dump_attack_overhead.log"
+LOG_FILE="../log/lce.log"
+BACKUP_LOG_FILE="../log/lce_backup.log"
+LOG_FILE_OVERHEAD="../log/lce_overhead.log"
 
 mv ${LOG_FILE} ${BACKUP_LOG_FILE}
 
-for r in ${RTL[@]}; do
+for r in ${RTLS[@]}; do
     cmd="./sim_core-v-verif.sh -r $r"
 
     fusible=0

@@ -1,0 +1,3 @@
+force cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[6]=1'b0;force cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[4:2]=3'b101;
+force cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.instr_valid = 1'h0;
+force cv32e40p_tb_wrapper_i.cv32e40p_core_i.id_stage_i.pc_set_o = 1'h0;
