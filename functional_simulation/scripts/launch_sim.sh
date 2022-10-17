@@ -17,19 +17,13 @@ while [ : ]; do
     --) shift; break; ;;
   esac
 done
+
 # csr_instr_asm csr_instructions dhrystone fibonacci generic_exception_test hello-world illegal load_store_rs1_zero misalign
 
 [ -z ${RTLS+x} ] && RTLSS=(INIT LAM SMM DIM)
 [ -z ${BB_LEN+x} ] && BB_LEN=(15) #(`seq 6 1 50`) #(30 25 20 15 10 5)
 [ -z ${FIRMWARES+x} ] && FIRMWARES=(fibonacci) #(csr_instr_asm csr_instructions dhrystone fibonacci hello-world load_store_rs1_zero)
-[ -z ${PLOT_CYCLING_OVERHEAD+x} ] && PLOT_CYCLING_OVERHEAD=1 #(csr_instr_asm csr_instructions dhrystone fibonacci hello-world load_store_rs1_zero)
 [ -z ${ATTACKS+x} ] && ATTACKS=(0 1 2 3 4)
-
-FIRMWARES_OFFSET=(-3716 -1848 -1884)
-
-
-# csr_instr_asm csr_instructions dhrystone fibonacci generic_exception_test hello-world illegal load_store_rs1_zero misalign
-
 
 
 for r in ${RTLS[@]}; do
@@ -65,9 +59,8 @@ for r in ${RTLS[@]}; do
                 done
             done
         fi
-
-        if [[ $r == 0 ]]; then
-            fusible=1
-        fi
     done
+    if [[ $r == 0 ]]; then
+        fusible=1
+    fi
 done
