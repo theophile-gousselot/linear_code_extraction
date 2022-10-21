@@ -17,8 +17,7 @@
 
 module cv32e40p_tb_wrapper
     #(parameter // Parameters used by TB
-                MAX_BB_LEN = 20,
-                MAX_INSTR_EXE_CYCLES = 35,
+                WWDL = 20,
                 INSTR_RDATA_WIDTH = 32,
                 RAM_ADDR_WIDTH    = 20,
                 BOOT_ADDR         = 'h80,
@@ -89,9 +88,8 @@ module cv32e40p_tb_wrapper
 
     // instantiate the core
     cv32e40p_core #(
-        `ifdef LDM_DETECTOR
-                 .MAX_BB_LEN(MAX_BB_LEN),                                                    
-                 .MAX_INSTR_EXE_CYCLES(MAX_INSTR_EXE_CYCLES),
+        `ifdef LCE_DETECTOR
+                 .WWDL(WWDL),                                                    
         `endif 
                  .PULP_XPULP       (PULP_XPULP),
                  .PULP_CLUSTER     (PULP_CLUSTER),

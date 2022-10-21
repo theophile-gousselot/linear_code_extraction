@@ -37,8 +37,8 @@ module tb_top_verilator
 	integer					delay_linear_dump;
 	integer					rtl_id;
     
-    `define MAX_BB_LEN 20
-    `define LCE_DETECTOR
+    `define WWDL 
+    `define NOT_LCE_DETECTOR
 
     // we either load the provided firmware or execute a small test program that
     // doesn't do more than an infinite loop with some I/O
@@ -81,7 +81,7 @@ module tb_top_verilator
             extracted_code_file = $fopen("extracted_code.txt", "a"); // open_mem_dump
             $fdisplay(extracted_code_file, "%u\n", cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.instr_rdata_i);
 			if(cycle_cnt_q >= delay_linear_dump) begin			
-                force cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[6]=1'b0;force cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[4:2]=3'b101; //This line will be automatically changes
+                //This line will be automatically changes
 			end
             $fclose(extracted_code_file);
         end
@@ -203,7 +203,7 @@ always_ff @(posedge clk_i, negedge rst_ni) begin
     cv32e40p_tb_wrapper
         #(
         `ifdef LCE_DETECTOR
-          .MAX_BB_LEN(`MAX_BB_LEN),                                                    
+          .WWDL(`WWDL),                                                    
         `endif 
           .INSTR_RDATA_WIDTH (INSTR_RDATA_WIDTH),
           .RAM_ADDR_WIDTH    (RAM_ADDR_WIDTH),
