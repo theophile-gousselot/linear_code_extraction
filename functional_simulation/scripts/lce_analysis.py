@@ -3,13 +3,15 @@ import argparse
 import binascii
 import subprocess
 import re
+import os
 from datetime import datetime
 
 ###### Arguments ######
 parser = argparse.ArgumentParser(description="compare the extracted firmware to the original")
 parser.add_argument("bench_name")
 parser.add_argument("-v","--verbose", help="increase output verbosity", action="store_true")
-parser.add_argument("-l","--log", help="write log into file_log", action="store_true")
+parser.add_argument("-o","--overhead", help="save logs on overhead log file", action="store_true")
+parser.add_argument("-c","--create_overhead_log", help="save logs on overhead log file", action="store_true")
 parser.add_argument(
     "-i",
     "--ignore_instr_0",
@@ -18,9 +20,9 @@ parser.add_argument(
 )
 parser.add_argument("-lce", "--lce", help="lce done ?", action="store_true")
 parser.add_argument(
-    "-b",
-    "--max_bb_len",
-    help="max_bb_len of lce_detector",
+    "-l",
+    "--wwdl",
+    help="wwdl of lce_detector",
     type=int, nargs='?', const=20, default=20
 )
 parser.add_argument(
@@ -35,12 +37,6 @@ parser.add_argument(
     help="specify the rtl id to the log file",
     type=str, nargs='?', const="INIT", default="INIT",
     choices=['INIT', 'LAM', 'SMM', 'DIM']
-)
-parser.add_argument(
-    "-o",
-    "--offset",
-    help="specify an offset between the original firmware and the extracted",
-    type=int, nargs='?', const=0, default=0
 )
 parser.add_argument(
     "-d",
@@ -58,13 +54,16 @@ TEST_DIR = "../core-v-verif/cv32e40p/tests/programs/custom/"
 GCC_SIZE = "/opt/corev/bin/riscv32-corev-elf-size"
 LCE_FOLDER = "/lce/"
 LOG_FILE_PATH = "../log/lce.log"
+LOG_FILE_OVERHEAD_PATH = "../log/lce_overhead"
+LOG_FILE_OVERHEAD_EXTENSION = ".log"
 ALARM_LOG_FILE = "lce_detector_alarm_log.txt"
 FINAL_CYCLE_FILE = "final_cycle_log.txt"
 FINAL_ADDR_FILE = "final_addr_log.txt"
 
+COMP_LENGTH = 24
 
 ##### String #####
-LOG_COL_NAMES = f"{' '*24}RTL   A   BB    Delay  Bench_name         Extracted   Alarm  Last_cycle  Last_addr"
+LOG_COL_NAMES = f"{' '*24}RTL   A  WWDL   Delay  Bench_name         Extracted   Alarm  Last_cycle  Last_addr"
 COLUMNS_NAMES_EVERY = 46
 
 
@@ -81,6 +80,20 @@ def print_success_to_extract(card_unmatched_instr):
     if args.verbose and args.lce :
         print(f"\n Success to extract {args.bench_name} : {card_unmatched_instr}")
 
+def index_log_file_overhead():
+    filename, extension = LOG_FILE_OVERHEAD_PATH, LOG_FILE_OVERHEAD_EXTENSION
+    counter = 1
+    path = f"{filename}-{counter}{extension}"
+    while os.path.exists(path):
+        counter += 1
+        path = f"{filename}-{counter}{extension}"
+    if not args.create_overhead_log:
+        counter = counter - 1
+    print(f"{filename}-{counter}{extension}")
+    return f"{filename}-{counter}{extension}"
+
+
+
 def write_logs(card_unmatched_instr):
     ''' Write data in log file. '''
     with open(f"{SIM_DIR}/{FINAL_CYCLE_FILE}", "r", encoding="utf-8") as final_cycle_file:
@@ -91,37 +104,38 @@ def write_logs(card_unmatched_instr):
         final_addr_read = final_addr_file.read()
     final_addr = hex(int(final_addr_read)) if len(final_addr_read)>0 else ""
 
-    if args.log:
-        if args.rtl != "INIT":
-            with open(f"{SIM_DIR}/{ALARM_LOG_FILE}", "r", encoding="utf-8") as alarm_file:
-                alarm_log = alarm_file.read()
-                alarm_cycle = '' if len(alarm_log) == 0 else int(alarm_log)
+    if args.rtl != "INIT":
+        with open(f"{SIM_DIR}/{ALARM_LOG_FILE}", "r", encoding="utf-8") as alarm_file:
+            alarm_log = alarm_file.read()
+            alarm_cycle = '' if len(alarm_log) == 0 else int(alarm_log)
 
-            max_bb_len = args.max_bb_len
+        wwdl = args.wwdl
 
-        else:
-            alarm_cycle = ""
-            max_bb_len = ""
+    else:
+        alarm_cycle = ""
+        wwdl = ""
 
-        # Create file if it dosen't exist
-        with open(LOG_FILE_PATH, 'a+', encoding="utf-8") as log_file :
-            None
+    log_file_path = index_log_file_overhead() if args.overhead else LOG_FILE_PATH
 
-        with open(LOG_FILE_PATH, 'r', encoding="utf-8") as log_file :
-            log = log_file.read()
-        log_list = list(log.split('\n'))
-        log_list.reverse()
-        if LOG_COL_NAMES not in log_list or log_list.index(LOG_COL_NAMES) > COLUMNS_NAMES_EVERY:
-            with open(LOG_FILE_PATH, 'a+', encoding="utf-8") as log_file :
-                log_file.write(f"{'-'*len(LOG_COL_NAMES)}\n{LOG_COL_NAMES}\n{'-'*len(LOG_COL_NAMES)}\n")
+    # Create file if it dosen't exist
+    with open(log_file_path, 'a+', encoding="utf-8") as log_file :
+        None
 
-        with open(LOG_FILE_PATH, 'a+', encoding="utf-8") as log_file :
-            log_file.write(f"[{str(datetime.now())[:-7]}] |{args.rtl:>4}|"+
-                f" |{args.attack_id}|"+ 
-                f" |{max_bb_len:>2}|"+
-                f" |{args.delay_lce:>6}| {args.bench_name:<22}"+
-                f" {card_unmatched_instr:>5} |{alarm_cycle:>6}|"+
-                f" |{final_cycle:>8}| |{final_addr:>8}|\n")
+    with open(log_file_path, 'r', encoding="utf-8") as log_file :
+        log = log_file.read()
+    log_list = list(log.split('\n'))
+    log_list.reverse()
+    if LOG_COL_NAMES not in log_list or log_list.index(LOG_COL_NAMES) > COLUMNS_NAMES_EVERY:
+        with open(log_file_path, 'a+', encoding="utf-8") as log_file :
+            log_file.write(f"{'-'*len(LOG_COL_NAMES)}\n{LOG_COL_NAMES}\n{'-'*len(LOG_COL_NAMES)}\n")
+
+    with open(log_file_path, 'a+', encoding="utf-8") as log_file :
+        log_file.write(f"[{str(datetime.now())[:-7]}] |{args.rtl:>4}|"+
+            f" |{args.attack_id}|"+ 
+            f" |{wwdl:>2}|"+
+            f" |{args.delay_lce:>6}| {args.bench_name:<22}"+
+            f" {card_unmatched_instr:>5} |{alarm_cycle:>6}|"+
+            f" |{final_cycle:>8}| |{final_addr:>8}|\n")
 
 ##### Firmwares comparison #####
 def load_firmwares(bench_name):
@@ -200,7 +214,6 @@ def parse_firm():
 
     Remarks
     ----------
-    o_ : offset
     i_ : index
     o_lce_i0 : offset for lce due to instruction 0 ignorance
 
@@ -221,7 +234,7 @@ def parse_firm():
     o_lce=firm_size_addr['.init'][1]-0x40
 
     card_unmatched_instr=0
-    i_4b_max =  firm_size_addr['.init'][0]*2 + firm_size_addr['.text'][0]*2 + args.offset*2
+    i_4b_max =  firm_size_addr['.init'][0]*2 + firm_size_addr['.text'][0]*2# + args.offset*2
 
 
     fuse_error = True if args.delay_lce else False
@@ -229,16 +242,36 @@ def parse_firm():
     while i_4b <= i_4b_max:
         if args.ignore_instr_0 and lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8] == b'00000000':
             o_lce_i0 += 8
+            if args.verbose:
+                print(f"        :"
+                    +f"    {str(vo_firm[o_vo+i_4b:o_vo+i_4b+8])[2:-1]:>8}"
+                    +f"    {str(lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8])[2:-1]:>8}"
+                    +f"       {card_unmatched_instr:<6}     {o_lce_i0//8}   # wait instruction 00000000")
+
+        elif lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8] == b'6f000000':
+            #if lce_firm[o_lce+i_4b+o_lce_i0+8:o_lce+i_4b+o_lce_i0+16] != b'00000000':
+            i_4b+=16
+            while (vo_firm[o_vo+i_4b:o_vo+i_4b+COMP_LENGTH] != lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+COMP_LENGTH] and i_4b <= i_4b_max and lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+COMP_LENGTH] != b''):
+                if args.verbose:
+                    print(f"        :"
+                        +f"    {str(vo_firm[o_vo+i_4b:o_vo+i_4b+8])[2:-1]:>8}"
+                        +f"    {str(lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8])[2:-1]:>8}"
+                        +f"       {card_unmatched_instr:<6}     {o_lce_i0//8}   # wait the end of security marker exec")
+                o_lce+=8
         else:
             if vo_firm[o_vo+i_4b:o_vo+i_4b+8] != lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8]:
                 if fuse_error:
                     fuse_error = False
-                    while vo_firm[o_vo+i_4b:o_vo+i_4b+8] != lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8]:
 
-                        print(f"{str(hex(i_4b//2+o_address)):>8}:"
-                            +f"    {str(vo_firm[o_vo+i_4b:o_vo+i_4b+8])[2:-1]:>8}"
-                            +f"    {str(lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8])[2:-1]:>8}"
-                            +f"       {card_unmatched_instr:<6}     {o_lce_i0//8}   # wait the jump destination")
+                    # When jump over exit instructions, comparison has to be synchonize by increasing original 
+                    # code until they fit again or until they reach and of comparison or end of lce_firm 
+                    # is reach
+                    while (vo_firm[o_vo+i_4b:o_vo+i_4b+COMP_LENGTH] != lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+COMP_LENGTH] and i_4b <= i_4b_max and lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+COMP_LENGTH] != b''):
+                        if args.verbose:
+                            print(f"{str(hex(i_4b//2+o_address)):>8}:"
+                                +f"    {str(vo_firm[o_vo+i_4b:o_vo+i_4b+8])[2:-1]:>8}"
+                                +f"    {str(lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8])[2:-1]:>8}"
+                                +f"       {card_unmatched_instr:<6}     {o_lce_i0//8}   # wait the jump destination")
                         i_4b+=8
                         o_lce-=8
                 else:

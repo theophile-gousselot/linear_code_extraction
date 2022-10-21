@@ -17,7 +17,7 @@ LCE_FOLDER=/lce/
 # Files names
 EXTRACTED_CODE_FILE=extracted_code.txt
 CODE_COMPARISON_SCRIPT_PYTHON=lce_analysis.py
-STRATEGIES_FILE=linear_extraction_strategies.txt
+STRATEGIES_FILE=lce_strategies.txt
 
 
 ##### Valid arguments
@@ -25,7 +25,7 @@ SIMULATORS=(verilator vsim-run)
 ATTACKS_ID=(0 1 2 3)
 RTLS=(INIT LAM SMM DIM)
 CODES=(csr_instr_asm csr_instructions dhrystone fibonacci generic_exception_test hello-world illegal load_store_rs1_zero misalign towers)
-LONG_VALID_ARGS=help,zzz,lce,delay_lce:,waves,verbose,ignore_instr_0,simulator:,codes:,attack_id:,rtl:,offset:,max_bb_len:
+LONG_VALID_ARGS=help,zzz,delay_lce:,waves,verbose,ignore_instr_0,overhead,create_overhead_log,simulator:,codes:,attack_id:,rtl:,offset:,wwdl:
 
 
 ##### Default arguments
@@ -37,10 +37,11 @@ ATTACk_ID=0
 RTL_FLAG="CV_CORE_BRANCH=init_cv32e40p"
 ID_RTL_FLAG="--rtl INIT"
 RTL="INIT"
+MONITORING=0
 
 
 ##### Argument analysis
-VALID_ARGS=$(getopt -o hzld:wvis:f:a:r:o:b: --long ${LONG_VALID_ARGS} -- "$@")
+VALID_ARGS=$(getopt -o hzd:wviecs:f:a:r:o:l: --long ${LONG_VALID_ARGS} -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -52,8 +53,9 @@ while [ : ]; do
      -w | --waves) WAVES_FLAG="WAVES=1"; shift; ;;
      -v | --verbose) VERBOSE_FLAG="--verbose"; shift; ;;
      -i | --ignore_instr_0) IGNORE_INSTR_0_FLAG="--ignore_instr_0"; shift; ;;
+     -e | --overhead) OVERHEAD_FLAG="--overhead"; shift; ;;
+     -c | --create_overhead_log) CREATE_OVERHEAD_LOG_FLAG="--create_overhead_log"; shift; ;;
      -o | --offset) OFFSET=$2;  OFFSET_FLAG="--offset $2"; shift 2; ;;
-     -l | --lce) LCE=true; LCE_FLAG="--lce";  shift; ;;
      -d | --delay_lce) [[ $(($2)) != $2 ]] && echo "Error : --delay_lce [number of delay] should be an integer not $2" && exit
 		LCE=true; LCE_DELAY=$2; LCE_FLAG="--lce"; LCE_DELAY_FLAG="--delay_lce $2"; shift 2; ;;
 
@@ -63,10 +65,11 @@ while [ : ]; do
         shift 2; ;;
 
     -f | --codes)
-		for code in $2
-		do
-			[[ ! " ${CODES[@]} " =~ " ${code} " ]] && echo "Error : Incorrect code name '${code}', it should be one of ${CODES[@]}" && exit
-		done
+# Don't check !
+#		for code in $2
+#		do
+#			[[ ! " ${CODES[@]} " =~ " ${code} " ]] && echo "Error : Incorrect code name '${code}', it should be one of ${CODES[@]}" && exit
+#		done
         CODES=($2); shift 2; ;;
 
     -a | --attack_id)
@@ -89,9 +92,9 @@ while [ : ]; do
         fi
         shift 2
         ;;
-    -b | --max_bb_len) [[ $(($2)) != $2 ]] && echo "Error : --max_bb_len [MAX_BB_LEN] should be an integer not $2" && exit
-
-        MAX_BB_LEN=$2; MAX_BB_LEN_FLAG="--max_bb_len $2"; shift 2; ;;
+    -l | --wwdl) 
+        [[ $(($2)) != $2 ]] && echo "Error : the worst wanted detection latency --wwdl [WWDL] should be an integer not $2" && exit
+        WWDL=$2; WWDL_FLAG="--wwdl $2"; shift 2; ;;
     --) shift; break; ;;
   esac
 done
@@ -99,14 +102,18 @@ done
 
 ##### Simulation setup
 # test bench configuration
-sed -i "s/define MAX_BB_LEN.*/define MAX_BB_LEN ${MAX_BB_LEN}/" ${TB_DIR}/${TB_TOP_FILE}
+sed -i "s/define WWDL.*/define WWDL ${WWDL}/" ${TB_DIR}/${TB_TOP_FILE}
 if [[ ${MONITORING} == 1 ]]; then
     sed -i "s/define NOT_LCE_DETECTOR/define LCE_DETECTOR/" ${TB_DIR}/${TB_TOP_FILE}
 else
     sed -i "s/define LCE_DETECTOR/define NOT_LCE_DETECTOR/" ${TB_DIR}/${TB_TOP_FILE}
 fi
 # Linear extraction strategies
-sed -i "s/force.*\/\/This line will be automatically changes.*/$(sed -n ${ATTACK_ID}p linear_extraction_strategies.txt) \/\/This line will be automatically changes/" ${TB_DIR}/${TB_TOP_FILE}
+if [[ ${LCE} == true ]]; then
+    sed -i "s/.*\/\/This line will be automatically changes/                $(sed -n ${ATTACK_ID}p linear_extraction_strategies.txt) \/\/This line will be automatically changes/" ${TB_DIR}/${TB_TOP_FILE}
+else
+    sed -i "s/.*\/\/This line will be automatically changes/                \/\/This line will be automatically changes/" ${TB_DIR}/${TB_TOP_FILE}
+fi
 
 
 
@@ -125,7 +132,7 @@ do
     echo -e "IGNORE INSTR. 00000000 : \c"; if [ ! -z ${IGNORE_INSTR_0_FLAG} ]; then echo "yes"; else echo "no"; fi
     echo -e "CODE                   : ${code}"
     echo -e "RTL                    : ${RTL}"
-    echo -e "MAX_BB_LEN             : ${MAX_BB_LEN}"
+    echo -e "WWDL                   : ${WWDL}"
     echo -e "ATTACK ID              : ${ATTACK_ID}"
     echo -e "DELAY                  : ${LCE_DELAY}"
     echo -e "OFFSET COMPARISON      : ${OFFSET}"
@@ -150,5 +157,5 @@ do
     fi
 
     # Python simulation analysis: save outputs into log files
-    echo_then_exe ${PYTHON} ${CODE_COMPARISON_SCRIPT_PYTHON} ${code} ${VERBOSE_FLAG} ${IGNORE_INSTR_0_FLAG} ${ID_RTL_FLAG} ${OFFSET_FLAG} ${LCE_FLAG} ${LCE_DELAY_FLAG} ${MAX_BB_LEN_FLAG} --log --attack_id ${ATTACK_ID_FOR_PYTHON}
+    echo_then_exe ${PYTHON} ${CODE_COMPARISON_SCRIPT_PYTHON} ${code} ${VERBOSE_FLAG} ${IGNORE_INSTR_0_FLAG} ${ID_RTL_FLAG} ${OFFSET_FLAG} ${LCE_FLAG} ${LCE_DELAY_FLAG} ${WWDL_FLAG} --attack_id ${ATTACK_ID_FOR_PYTHON} ${OVERHEAD_FLAG} ${CREATE_OVERHEAD_LOG_FLAG}
 done

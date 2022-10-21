@@ -17,6 +17,45 @@ explains one simulation -> one line of outputs in log file
 Simulate execution with the performing of an LCE on a protected core
 
 
+## Folder organization
+```
+.
+├── simulate.sh                 // simulate one execution
+├── run_campaigns.sh            // simulate a campaign of execution
+├── lce_analysis.py             // analysis of one simulation outputs
+├── clock_cycle_overhead.py     // plot clock cycle overheads of a campaign
+├── clean_everything.sh         // clean ../log folder and core-v-verif framework
+├── lce_strategies.txt          // list of linear execution strategies for LCE
+└── README.md
+```
+
+There are one section for every file.
+
+
+
+## Scripts
+
+### Scripts to run simulations
+- **simulate.sh :** run one simulation
+- **run_campaigns.sh :** run a campaign consisting of several simulations
+overhead option
+
+
+
+
+### Scripts to analyse simulations
+- **lce_analysis.py :** update the log file with the analysis of simulation.
+
+This scripts is automatically executed at the end of simulate.sh execution.
+- **clock_cycle_overhead.py :** 
+This scripts is automatically executed at the end of run_campaigns execution if option --overhead is enable.
+```bash
+python3 clock_cycle_overhead.py nall -a -l ../log/already_computed/lce_overhead_wwdl_from_6_to_50.log
+```
+
+#### clean_everything.sh
+- lce_strategies.txt
+
 
 ### Linear extraction strategies
 
@@ -37,7 +76,7 @@ Some outputs are avilable at the bottom of log/linear_dump_attack.log file.
 
 ``` bash
 -------------------------------------------------------------------------------------------------------------
-                       RTL  A   BB  Instr  Delay  Bench_name              Dump   Alarm  Last_cycle  Last_addr
+                       RTL  A  WWDL Instr  Delay  Bench_name              Dump   Alarm  Last_cycle  Last_addr
 -------------------------------------------------------------------------------------------------------------
 [2022-09-29 10:29:50] | 0| |0| |  | |  | |     0| hello-world                  |      | |   21080| |   0x420|
 [2022-09-29 10:29:52] | 2| |0| |25| |35| |     0| hello-world                  |      | |   23064| |   0x420|
