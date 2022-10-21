@@ -1,4 +1,5 @@
 log/*
 log/plot/*
 !log/plot/
+!log/already_computed*
 !log/README.md
