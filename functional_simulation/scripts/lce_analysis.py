@@ -60,11 +60,11 @@ ALARM_LOG_FILE = "lce_detector_alarm_log.txt"
 FINAL_CYCLE_FILE = "final_cycle_log.txt"
 FINAL_ADDR_FILE = "final_addr_log.txt"
 
-COMP_LENGTH = 24
+COMP_LENGTH = 16
 
 ##### String #####
 LOG_COL_NAMES = f"{' '*24}RTL   A  WWDL   Delay  Bench_name         Extracted   Alarm  Last_cycle  Last_addr"
-COLUMNS_NAMES_EVERY = 46
+COLUMNS_NAMES_EVERY = 25
 
 
 #### Print/write functions ######
@@ -250,14 +250,29 @@ def parse_firm():
 
         elif lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8] == b'6f000000':
             #if lce_firm[o_lce+i_4b+o_lce_i0+8:o_lce+i_4b+o_lce_i0+16] != b'00000000':
-            i_4b+=16
-            while (vo_firm[o_vo+i_4b:o_vo+i_4b+COMP_LENGTH] != lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+COMP_LENGTH] and i_4b <= i_4b_max and lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+COMP_LENGTH] != b''):
-                if args.verbose:
-                    print(f"        :"
-                        +f"    {str(vo_firm[o_vo+i_4b:o_vo+i_4b+8])[2:-1]:>8}"
-                        +f"    {str(lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8])[2:-1]:>8}"
-                        +f"       {card_unmatched_instr:<6}     {o_lce_i0//8}   # wait the end of security marker exec")
-                o_lce+=8
+            i_4b+=8
+
+            max_security_marker_exec_cycle = 5
+            security_marker_exec_cycle = 1
+            while (vo_firm[o_vo+i_4b:o_vo+i_4b+COMP_LENGTH] != lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+COMP_LENGTH] and i_4b <= i_4b_max and lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+COMP_LENGTH] != b'' and security_marker_exec_cycle < max_security_marker_exec_cycle):
+
+                if args.ignore_instr_0 and lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8] == b'00000000':
+                    o_lce_i0 += 8
+                    if args.verbose:
+                        print(f"        :"
+                            +f"    {str(vo_firm[o_vo+i_4b:o_vo+i_4b+8])[2:-1]:>8}"
+                            +f"    {str(lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8])[2:-1]:>8}"
+                            +f"       {card_unmatched_instr:<6}     {o_lce_i0//8}   # wait instruction 00000000")
+
+
+                else:
+                    if args.verbose:
+                        print(f"        :"
+                            +f"    {str(vo_firm[o_vo+i_4b:o_vo+i_4b+8])[2:-1]:>8}"
+                            +f"    {str(lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8])[2:-1]:>8}"
+                            +f"       {card_unmatched_instr:<6}     {o_lce_i0//8}   # wait the end of security marker exec")
+                    security_marker_exec_cycle += 1
+                    o_lce+=8
         else:
             if vo_firm[o_vo+i_4b:o_vo+i_4b+8] != lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8]:
                 if fuse_error:
@@ -274,6 +289,7 @@ def parse_firm():
                                 +f"       {card_unmatched_instr:<6}     {o_lce_i0//8}   # wait the jump destination")
                         i_4b+=8
                         o_lce-=8
+                        card_unmatched_instr += 1
                 else:
                     card_unmatched_instr += 1
 

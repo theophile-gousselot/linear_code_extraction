@@ -24,7 +24,7 @@ STRATEGIES_FILE=lce_strategies.txt
 SIMULATORS=(verilator vsim-run)
 ATTACKS_ID=(0 1 2 3)
 RTLS=(INIT LAM SMM DIM)
-CODES=(csr_instr_asm csr_instructions dhrystone fibonacci generic_exception_test hello-world illegal load_store_rs1_zero misalign towers)
+CODES=(dhrystone fibonacci)
 LONG_VALID_ARGS=help,zzz,delay_lce:,waves,verbose,ignore_instr_0,overhead,create_overhead_log,simulator:,codes:,attack_id:,rtl:,offset:,wwdl:
 
 
@@ -110,7 +110,7 @@ else
 fi
 # Linear extraction strategies
 if [[ ${LCE} == true ]]; then
-    sed -i "s/.*\/\/This line will be automatically changes/                $(sed -n ${ATTACK_ID}p linear_extraction_strategies.txt) \/\/This line will be automatically changes/" ${TB_DIR}/${TB_TOP_FILE}
+    sed -i "s/.*\/\/This line will be automatically changes/                $(sed -n ${ATTACK_ID}p ${STRATEGIES_FILE}) \/\/This line will be automatically changes/" ${TB_DIR}/${TB_TOP_FILE}
 else
     sed -i "s/.*\/\/This line will be automatically changes/                \/\/This line will be automatically changes/" ${TB_DIR}/${TB_TOP_FILE}
 fi
@@ -141,6 +141,7 @@ do
 
     if [ ${LCE} = true ] ; then 
         # The simulation max cycle is computed considering the executed code
+        [ ! -f ${BENCH_DIR}/${code}/${code}.elf ] && echo "Please compile ${code} without attack for the first execution (use -a 0)" && exit
         SIZE=(`${RISCV}/bin/riscv32-corev-elf-size -Ax ${BENCH_DIR}/${code}/${code}.elf | grep .data`)
         MAXCYCLES=$(((${SIZE[1]}+${SIZE[2]})))
 

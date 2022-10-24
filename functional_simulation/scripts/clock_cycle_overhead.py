@@ -13,26 +13,33 @@ PLOT_PATH = "../log/plot/"
 RTLS = ("SMM", "DIM")
 MARKERS = {"SMM":"+", "DIM":"x"}
 FORBIDDEN_CODE_NAME = ("AVERAGE", "THEORY")
+COLUMN_HEADER=("-"*60, f"{' '*24}RTL   A  WWDL   Delay  Bench_name         Extracted   Alarm  Last_cycle  Last_addr")
 
-NEARLY_ALL_CODE_NAMES = [
+CODE_NAMES = [
+    'crc32',
+    'cubic',
     'dhrystone',
+    'edn',
     'fibonacci',
-    'hello-world',
-    'illegal',
-    'misalign',
-    'primecount']
-
-ALL_CODE_NAMES = [
-    'csr_instr_asm',
-    'csr_instructions',
-    'dhrystone',
-    'fibonacci',
-    'generic_exception_test',
-    'hello-world',
-    'illegal',
-    'load_store_rs1_zero',
-    'misalign',
-    'primecount']
+    'huffbench',
+    'matmult-int',
+    'md5sum',
+    'minver',
+    'mont64',
+    'nbody',
+    'nettle-aes',
+    'nettle-sha256',
+    'nsichneu',
+    'picojpeg',
+    'primecount',
+    'qrduino',
+    'sglib-combined',
+    'slre',
+    'st',
+    'statemate',
+    'tarfind',
+    'ud',
+    'wikisort']
 
 parser = argparse.ArgumentParser(description="Script to analyse and plot clock cycle overheads as a function of WWDL (Worst Wanted Detection Latency).")
 parser.add_argument("code_names")
@@ -81,7 +88,7 @@ def extract_overheads(code_name, log_file_path):
         cycles[rtl]=[]
 
     for line_overhead in log_overhead:
-        if code_name in line_overhead:
+        if f" {code_name} " in line_overhead and line_overhead not in COLUMN_HEADER:
             line_overhead_split = line_overhead.split("|")
             line_overhead_list = [ll.replace(" ","") for ll in line_overhead_split if ll not in (" ", "")]
             if int(line_overhead_list[2]) == 0:  # no attack
@@ -135,7 +142,6 @@ def get_overheads_codes(code_names, log_file_path):
             if rtl not in overheads:
                 overheads[rtl]={}
             overheads[rtl][code_name]=np.array([c[1]/cycles_reference for c in cycles[rtl]])
-
             if 'wwdl' not in locals():
                 wwdl = [c[0] for c in cycles[rtl]]
             if wwdl != [c[0] for c in cycles[rtl]]:
@@ -236,9 +242,7 @@ def main():
     '''Main'''
     # Filter arguments to detect "all"
     if args.code_names == "all":
-        code_names = ALL_CODE_NAMES
-    elif args.code_names == "nall":
-        code_names = NEARLY_ALL_CODE_NAMES
+        code_names = CODE_NAMES
     else:
         code_names = list(args.code_names.split(" "))
 

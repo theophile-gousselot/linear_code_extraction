@@ -21,11 +21,12 @@ done
 
 
 # csr_instr_asm csr_instructions dhrystone fibonacci generic_exception_test hello-world illegal load_store_rs1_zero misalign
+ALL_FIRMAWRES=(crc32 cubic dhrystone edn fibonacci huffbench matmult-int md5sum minver mont64 nbody nettle-aes nettle-sha256 nsichneu picojpeg primecount qrduino sglib-combined slre st statemate tarfind ud wikisort)
 
 # Default values
 [ -z ${RTLS+x} ] && RTLS=(INIT LAM SMM DIM)
-[ -z ${WWDLS+x} ] && WWDLS=(15) #(`seq 6 1 50`) #(30 25 20 15 10 5)
-[ -z ${FIRMWARES+x} ] && FIRMWARES=(fibonacci) #(csr_instr_asm csr_instructions dhrystone fibonacci hello-world load_store_rs1_zero)
+[ -z ${WWDLS+x} ] && WWDLS=(`seq 6 1 150`) #(30 25 20 15 10 5)
+[ -z ${FIRMWARES+x} ] && FIRMWARES=${ALL_FIRMAWRES[@]} #(csr_instr_asm csr_instructions dhrystone fibonacci hello-world load_store_rs1_zero)
 [ -z ${ATTACKS+x} ] && ATTACKS=(0 1 2 3 4)
 
 
@@ -49,7 +50,7 @@ for r in ${RTLS[@]}; do
                 for f in ${FIRMWARES[@]}; do
                     cmd_f="${cmd_a} -f $f"
 
-                    [ $a == "3" ] && cmd_f="${cmd_f} -d 25"
+                    [ $a == "3" ] && cmd_f="${cmd_f} -d 24"
 
                     cmd="${cmd_f} ${OVERHEAD_FLAG}"
                     [ ${first_simu} == 1 ] && cmd="${cmd} ${CREATE_OVERHEAD_LOG_FLAG}"
@@ -68,4 +69,4 @@ for r in ${RTLS[@]}; do
 done
 
 
-[ ${OVERHEAD_FLAG+x} ] && echo "python3 clock_cycle_overhead.py nall" && python3 clock_cycle_overhead.py nall
+[ ${OVERHEAD_FLAG+x} ] && echo "python3 clock_cycle_overhead.py nall" && python3 clock_cycle_overhead.py all
