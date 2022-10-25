@@ -8,7 +8,7 @@ from datetime import datetime
 
 ###### Arguments ######
 parser = argparse.ArgumentParser(description="compare the extracted firmware to the original")
-parser.add_argument("bench_name")
+parser.add_argument("code_name")
 parser.add_argument("-v","--verbose", help="increase output verbosity", action="store_true")
 parser.add_argument("-o","--overhead", help="save logs on overhead log file", action="store_true")
 parser.add_argument("-c","--create_overhead_log", help="save logs on overhead log file", action="store_true")
@@ -63,7 +63,7 @@ FINAL_ADDR_FILE = "final_addr_log.txt"
 COMP_LENGTH = 16
 
 ##### String #####
-LOG_COL_NAMES = f"{' '*24}RTL   A  WWDL   Delay  Bench_name         Extracted   Alarm  Last_cycle  Last_addr"
+LOG_COL_NAMES = f"{' '*24}RTL   A  WWDL   Delay   Code_name         Extracted   Alarm  Last_cycle  Last_addr"
 COLUMNS_NAMES_EVERY = 25
 
 
@@ -78,7 +78,7 @@ def print_success_to_extract(card_unmatched_instr):
 
     ''' Print percentage of extracted firmware. '''
     if args.verbose and args.lce :
-        print(f"\n Success to extract {args.bench_name} : {card_unmatched_instr}")
+        print(f"\n Success to extract {args.code_name} : {card_unmatched_instr}")
 
 def index_log_file_overhead():
     filename, extension = LOG_FILE_OVERHEAD_PATH, LOG_FILE_OVERHEAD_EXTENSION
@@ -133,19 +133,19 @@ def write_logs(card_unmatched_instr):
         log_file.write(f"[{str(datetime.now())[:-7]}] |{args.rtl:>4}|"+
             f" |{args.attack_id}|"+ 
             f" |{wwdl:>2}|"+
-            f" |{args.delay_lce:>6}| {args.bench_name:<22}"+
+            f" |{args.delay_lce:>6}| {args.code_name:<22}"+
             f" {card_unmatched_instr:>5} |{alarm_cycle:>6}|"+
             f" |{final_cycle:>8}| |{final_addr:>8}|\n")
 
 ##### Firmwares comparison #####
-def load_firmwares(bench_name):
+def load_firmwares(code_name):
     '''
     Load firmware intital (vo) and extracted (bin)
 
     Parameters
     ----------
-    bench_name : str
-        Name of the benchmark.
+    code_name : str
+        Name of the code.
 
     Returns
     ----------
@@ -156,10 +156,10 @@ def load_firmwares(bench_name):
         are 0xa0a0 between ervry groups of 4 bytes, these 0xa0a0 are remove.
 
     '''
-    with open(f"{TEST_DIR}/{bench_name}/{bench_name}.elf",'rb') as vo_file :
+    with open(f"{TEST_DIR}/{code_name}/{code_name}.elf",'rb') as vo_file :
         vo_firm = binascii.hexlify(vo_file.read())
 
-    with open(f"{SIM_RES_DIR}/{bench_name}/{LCE_FOLDER}/{bench_name}_lce.hex",'rb') as lce_file :
+    with open(f"{SIM_RES_DIR}/{code_name}/{LCE_FOLDER}/{code_name}_lce.hex",'rb') as lce_file :
         lce_firm_untreated = binascii.hexlify(lce_file.read())
 
     # Remove 0x0a0a between every 4 bytes of extracted firmware
@@ -170,14 +170,14 @@ def load_firmwares(bench_name):
 
     return (vo_firm, lce_firm)
 
-def get_bench_section_size_addr(bench_name):
+def get_code_section_size_addr(code_name):
     '''
-    Get section size and address of bench_name with gcc_size
+    Get section size and address of code_name with gcc_size
 
     Parameters
     ----------
-    bench_name : str
-        Name of the benchmark.
+    code_name : str
+        Name of the code.
 
     Returns
     ----------
@@ -186,7 +186,7 @@ def get_bench_section_size_addr(bench_name):
 
     '''
     firm_size_addr_cmd = subprocess.run([GCC_SIZE,
-        f"{TEST_DIR}/{bench_name}/{bench_name}.elf", "-A"],
+        f"{TEST_DIR}/{code_name}/{code_name}.elf", "-A"],
         capture_output=True, text=True, check=True)
     firm_size_addr_tmp=list(filter(('').__ne__, list(re.sub(' +', ';',
         firm_size_addr_cmd.stdout).split("\n"))))
@@ -218,8 +218,8 @@ def parse_firm():
     o_lce_i0 : offset for lce due to instruction 0 ignorance
 
     '''
-    vo_firm, lce_firm = load_firmwares(args.bench_name)
-    firm_size_addr=get_bench_section_size_addr(args.bench_name)
+    vo_firm, lce_firm = load_firmwares(args.code_name)
+    firm_size_addr=get_code_section_size_addr(args.code_name)
 
     o_lce_i0 = 0  # offset for lce due to instruction 0 ignorance
     i_4b = 0  # index counting groups of 4 bits

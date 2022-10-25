@@ -12,7 +12,7 @@ PYTHON="python3"
 SIM_DIR=../core-v-verif/cv32e40p/sim/core/
 SIM_RESULTS_DIR=../core-v-verif/cv32e40p/sim/core/sim_results/
 TB_DIR=../core-v-verif/cv32e40p/tb/core/
-BENCH_DIR=../core-v-verif/cv32e40p/tests/programs/custom/
+CODE_DIR=../core-v-verif/cv32e40p/tests/programs/custom/
 LCE_FOLDER=/lce/
 # Files names
 EXTRACTED_CODE_FILE=extracted_code.txt
@@ -101,7 +101,7 @@ done
 
 
 ##### Simulation setup
-# test bench configuration
+# test code configuration
 sed -i "s/define WWDL.*/define WWDL ${WWDL}/" ${TB_DIR}/${TB_TOP_FILE}
 if [[ ${MONITORING} == 1 ]]; then
     sed -i "s/define NOT_LCE_DETECTOR/define LCE_DETECTOR/" ${TB_DIR}/${TB_TOP_FILE}
@@ -141,8 +141,8 @@ do
 
     if [ ${LCE} = true ] ; then 
         # The simulation max cycle is computed considering the executed code
-        [ ! -f ${BENCH_DIR}/${code}/${code}.elf ] && echo "Please compile ${code} without attack for the first execution (use -a 0)" && exit
-        SIZE=(`${RISCV}/bin/riscv32-corev-elf-size -Ax ${BENCH_DIR}/${code}/${code}.elf | grep .data`)
+        [ ! -f ${CODE_DIR}/${code}/${code}.elf ] && echo "Please compile ${code} without attack for the first execution (use -a 0)" && exit
+        SIZE=(`${RISCV}/bin/riscv32-corev-elf-size -Ax ${CODE_DIR}/${code}/${code}.elf | grep .data`)
         MAXCYCLES=$(((${SIZE[1]}+${SIZE[2]})))
 
         # Launch simulation
@@ -150,7 +150,7 @@ do
 
         # Save initial and extracted codes
         mkdir -p ${SIM_RESULTS_DIR}/${code}/${LCE_FOLDER}
-        cp ${BENCH_DIR}/${code}/${code}.elf ${SIM_RESULTS_DIR}/${code}/${LCE_FOLDER}/${code}.elf
+        cp ${CODE_DIR}/${code}/${code}.elf ${SIM_RESULTS_DIR}/${code}/${LCE_FOLDER}/${code}.elf
         mv ${SIM_DIR}${EXTRACTED_CODE_FILE} ${SIM_RESULTS_DIR}/${code}/${LCE_FOLDER}/${code}_lce.hex
     else
         # Launch simulation without LCE

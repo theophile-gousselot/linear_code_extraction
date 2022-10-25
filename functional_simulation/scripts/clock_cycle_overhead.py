@@ -13,7 +13,7 @@ PLOT_PATH = "../log/plot/"
 RTLS = ("SMM", "DIM")
 MARKERS = {"SMM":"+", "DIM":"x"}
 FORBIDDEN_CODE_NAME = ("AVERAGE", "THEORY")
-COLUMN_HEADER=("-"*60, f"{' '*24}RTL   A  WWDL   Delay  Bench_name         Extracted   Alarm  Last_cycle  Last_addr")
+COLUMN_HEADER=("-"*60, f"{' '*24}RTL   A  WWDL   Delay   Code_name         Extracted   Alarm  Last_cycle  Last_addr")
 
 CODE_NAMES = [
     'crc32',

@@ -76,7 +76,7 @@ Some outputs are avilable at the bottom of log/linear_dump_attack.log file.
 
 ``` bash
 -------------------------------------------------------------------------------------------------------------
-                       RTL  A  WWDL Instr  Delay  Bench_name              Dump   Alarm  Last_cycle  Last_addr
+                       RTL  A  WWDL Instr  Delay  Code_name              Dump   Alarm  Last_cycle  Last_addr
 -------------------------------------------------------------------------------------------------------------
 [2022-09-29 10:29:50] | 0| |0| |  | |  | |     0| hello-world                  |      | |   21080| |   0x420|
 [2022-09-29 10:29:52] | 2| |0| |25| |35| |     0| hello-world                  |      | |   23064| |   0x420|
@@ -90,7 +90,7 @@ Some outputs are avilable at the bottom of log/linear_dump_attack.log file.
 
 
 ### Cycling overhead
-To simulate the execution of a set of benchmarks with a variety of latency detection:
+To simulate the execution of a set of codes with a variety of latency detection:
 For ASM countermeasure :
 ``` bash
  ./launch_sim_overhead.sh -r "0 2" -f "hello-world" -b "25" -p -n "lce_overhead_2.log"
@@ -102,7 +102,7 @@ For ADI-SM countermeasure :
 ```
 
 
-To plot the cycling overhead from the benchmarks execution:
+To plot the cycling overhead from the code execution:
 ``` bash
 python3 cycling_overhead.py nall -l "../log/lce_overhead_11.log ../log/lce_overhead_2.log"
 ```
@@ -123,10 +123,15 @@ By using the script sim_core-v-verif.sh, you can :
 - simulate some programs
 - simulate a linear memory dump and analyse the percentage of dumped programs
 
+
+#### Waveforms are available
+here: core-v-verif/cv32e40p.sim/core/verilator_tb.vcd
+
+
 ## Script
 
 ```
-./sim_core-v-verif.sh -s <simulator> -l -w -t <bench_name>
+./sim_core-v-verif.sh -s <simulator> -l -w -t <code_name>
 ```
 
 Options :
