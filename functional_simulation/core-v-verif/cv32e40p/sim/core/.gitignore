@@ -3,5 +3,7 @@ memory_dump.bin
 testbench_verilator
 results
 sim_results
-*.txt
+lce_detector_alarm_log.txt
+final_addr_log.txt
+final_cycle_log.txt
 *.vcd
