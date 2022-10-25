@@ -528,6 +528,9 @@ verilate-clean: tc-clean
 	if [ -d $(VERI_OBJ_DIR) ]; then rm -r $(VERI_OBJ_DIR); fi
 	rm -rf testbench_verilator
 	if [ -e memory_dump.bin ]; then rm memory_dump.bin; fi
+	if [ -e final_addr_log.txt ]; then rm final_addr_log.txt; fi
+	if [ -e final_cycle_log.txt ]; then rm final_cycle_log.txt; fi
+	if [ -e lce_detector_alarm_log.txt ]; then rm lce_detector_alarm_log.txt; fi
 
 
 ###############################################################################
