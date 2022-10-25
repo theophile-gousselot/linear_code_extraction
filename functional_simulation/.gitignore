@@ -1,7 +1,7 @@
-./log/*
-./log/plot/*
-!./log/plot/
-!./log/plot/plot_overheads_and_wwdls_4-35__average.pdf 
-!./log/plot/plot_overheads_and_wwdls_4-35.pdf
-!./log/already_computed*
-!./log/README.md
+log/*
+log/plot/*
+!log/plot/
+!log/plot/plot_overheads_and_wwdls_4-35__average.pdf 
+!log/plot/plot_overheads_and_wwdls_4-35.pdf
+!log/already_computed*
+!log/README.md
