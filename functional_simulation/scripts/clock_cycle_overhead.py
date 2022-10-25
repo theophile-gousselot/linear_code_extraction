@@ -188,10 +188,10 @@ def plot_clock_cycle_overheads(code_names):
     '''
     # Plot setup
     plt.rc('font', family='serif')
-    if args.save_fig:
+    if args.average:
         plt.figure(figsize=(5, 3))
     else:
-        plt.figure(figsize=(9, 6))
+        plt.figure(figsize=(10, 8))
     plt.axhline(y=0, color="black", linewidth=0.25)
 
 
@@ -222,19 +222,19 @@ def plot_clock_cycle_overheads(code_names):
                 plt.plot([l for l in range(wwdl[0],wwdl[-1]+1)], nb_to_percent(overheads["SMM"]["THEORY"]), "k--", linewidth=1, label="Theoritical estimation (SMM)")
 
     # Setup layout, axes names
-    leg=plt.legend()
+    leg=plt.legend() if args.average else plt.legend(ncol=2)
     xmin, xmax, ymin, ymax = 4.5, 35, -5, 90
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.gca().invert_xaxis()
     plt.xlabel("Worst wanted detection latency (in instructions executed)")  #("Latency detection (in instructions)")
-    plt.ylabel("Clock cycles overheads (%)")
+    plt.ylabel("Clock cycle overheads (%)")
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     if args.save_fig:
         avg_mode = 'average__' if args.average else ""
         short_code_names = ""
-        for code in overheads[overheads.keys()[0]]:
-            short_code_names+=f"-{code}[0:3]" if code not in FORBIDDEN_CODE_NAME else ""
+        for code in overheads[list(overheads.keys())[0]]:
+            short_code_names+=f"-{code[0:3]}" if code not in FORBIDDEN_CODE_NAME else ""
         plt.savefig(f"{PLOT_PATH}/plot_overheads_and_wwdls__range{int(xmin)}-{int(xmax)}__{avg_mode}f{short_code_names}.pdf")
     plt.show()
 
