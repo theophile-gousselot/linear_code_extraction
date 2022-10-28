@@ -41,7 +41,7 @@ MONITORING=0
 
 
 ##### Argument analysis
-VALID_ARGS=$(getopt -o hzd:wviecs:f:a:r:o:l: --long ${LONG_VALID_ARGS} -- "$@")
+VALID_ARGS=$(getopt -o hzd:wvieks:c:a:r:o:l: --long ${LONG_VALID_ARGS} -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -54,7 +54,7 @@ while [ : ]; do
      -v | --verbose) VERBOSE_FLAG="--verbose"; shift; ;;
      -i | --ignore_instr_0) IGNORE_INSTR_0_FLAG="--ignore_instr_0"; shift; ;;
      -e | --overhead) OVERHEAD_FLAG="--overhead"; shift; ;;
-     -c | --create_overhead_log) CREATE_OVERHEAD_LOG_FLAG="--create_overhead_log"; shift; ;;
+     -k | --create_overhead_log) CREATE_OVERHEAD_LOG_FLAG="--create_overhead_log"; shift; ;;
      -o | --offset) OFFSET=$2;  OFFSET_FLAG="--offset $2"; shift 2; ;;
      -d | --delay_lce) [[ $(($2)) != $2 ]] && echo "Error : --delay_lce [number of delay] should be an integer not $2" && exit
 		LCE=true; LCE_DELAY=$2; LCE_FLAG="--lce"; LCE_DELAY_FLAG="--delay_lce $2"; shift 2; ;;
@@ -64,7 +64,7 @@ while [ : ]; do
 		[[ ${SIMULATOR} == "vsim-run" ]] && TB_TOP_FILE=tb_top.sv
         shift 2; ;;
 
-    -f | --codes)
+    -c | --codes)
 # Don't check !
 #		for code in $2
 #		do

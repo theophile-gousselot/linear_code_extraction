@@ -196,13 +196,13 @@ def plot_clock_cycle_overheads(code_names):
 
 
     # Log overheads file
-    if args.log_path == '':
-        log_file_paths = [find_last_log_file_overhead()]
-    elif args.log_id != '':
+    if args.log_id != '':
         log_ids = list(args.log_id.split(" "))
         log_file_paths = []
         for log_id in log_ids:
             log_file_paths.append(f"{LOG_FILE_OVERHEAD_PATH}-{log_id}{LOG_FILE_OVERHEAD_EXTENSION}")
+    elif args.log_path == '':
+        log_file_paths = [find_last_log_file_overhead()]
     else:
         log_file_paths = list(args.log_path.split(" "))
 
