@@ -1,6 +1,6 @@
 # Linear code extraction
 
-This git folder complete the article **Linear Code Extraction: Practice, Countermeasures, Proof-of-Concept on RISC-V**. It provides a simulation framework to simulate the execution of a code on core, and a FPGA-based proof of concept. Both are independent.
+This git folder completes the article **Linear Code Extraction: Practice, Countermeasures, Proof-of-Concept on RISC-V**. It provides a simulation framework to simulate the execution of a code on core, and an FPGA-based proof of concept. Both are independent.
 
 The chosen core is the CV32E40P, 4-stage in-order 32-bit RISC-V, representative of small ISA RISC-V cores and provided by [OpenHW Group](https://www.openhwgroup.org/).
 
@@ -22,11 +22,11 @@ The **fpga** folder contains the necessary to reproduce FPGA-based proof-of-conc
    ```sh
    git clone https://github.com/anonymous-submission002/linear_code_extraction.git
    ```
-2. To simulate execution, visit simulation README
+2. To simulate execution, visit [README](simulation/README.md) in simulation folder
    ```sh
    cd linear_code_extraction/simulation
    ```
-3. To implement FPGA-based proof of concept, visit fpga README
+3. To implement FPGA-based proof of concept, visit [README](simulation/README.md) in fpga folder
    ```sh
    cd linear_code_extraction/fpga
    ```
