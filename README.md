@@ -22,11 +22,11 @@ The **fpga** folder contains the necessary to reproduce FPGA-based proof-of-conc
    ```sh
    git clone https://github.com/anonymous-submission002/linear_code_extraction.git
    ```
-2. To simulate execution, visit [README](simulation/README.md) in simulation folder
+2. To simulate execution, visit [README](simulation/README.md) in `simulation` folder
    ```sh
    cd linear_code_extraction/simulation
    ```
-3. To implement FPGA-based proof of concept, visit [README](simulation/README.md) in fpga folder
+3. To implement FPGA-based proof of concept, visit [README](fpga/README.md) in `fpga` folder
    ```sh
    cd linear_code_extraction/fpga
    ```
