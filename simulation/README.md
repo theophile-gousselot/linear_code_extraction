@@ -23,10 +23,10 @@ To simulate code execution, please follow these instructions :
    pip install -r requirements.txt
    ```
 
-2. Install a [CORE-V RISC-V toolchain](https://www.embecosm.com/resources/tool-chain-downloads/#corev). The recommended installation path is `/opt/corev`. Set RISCV shell variable to your toolchain and add its `bin` folder to your `PATH`.
+2. Install a [CORE-V RISC-V toolchain](https://www.embecosm.com/resources/tool-chain-downloads/#corev). The recommended installation path is `/opt/corev`. Create a shell variable COREV to YES.
    ```sh
-   export RISCV=/opt/corev
    export PATH="/opt/corev/bin:$PATH"
+   export COREV="YES"
    ```
 
 3. Install [Verilator](https://veripool.org/guide/latest/install.html).
