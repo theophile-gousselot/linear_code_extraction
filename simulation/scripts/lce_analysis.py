@@ -1,4 +1,4 @@
-''' Script to compare the extracted firmware to the original.'''
+''' Script to compare the extracted code to the original.'''
 import argparse
 import binascii
 import subprocess
@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 
 ###### Arguments ######
-parser = argparse.ArgumentParser(description="compare the extracted firmware to the original")
+parser = argparse.ArgumentParser(description="compare the extracted code to the original")
 parser.add_argument("code_name")
 parser.add_argument("-v","--verbose", help="increase output verbosity", action="store_true")
 parser.add_argument("-o","--overhead", help="save logs on overhead log file", action="store_true")
@@ -71,12 +71,12 @@ COLUMNS_NAMES_EVERY = 25
 def print_column_names():
     ''' Print names of columns. '''
     if args.verbose and args.lce :
-        print(f"{'-'*60}\n  Address          Firmware         #unmatched  #ignored\n",
+        print(f"{'-'*60}\n  Address            Code          #mismatched  #ignored\n",
             f" (hexa)     original   extracted     instr.     instr.\n{'-'*60}")
 
 def print_success_to_extract(card_unmatched_instr):
 
-    ''' Print percentage of extracted firmware. '''
+    ''' Print percentage of extracted code. '''
     if args.verbose and args.lce :
         print(f"\n Success to extract {args.code_name} : {card_unmatched_instr}")
 
@@ -137,10 +137,10 @@ def write_logs(card_unmatched_instr):
             f" {card_unmatched_instr:>5} |{alarm_cycle:>6}|"+
             f" |{final_cycle:>8}| |{final_addr:>8}|\n")
 
-##### Firmwares comparison #####
-def load_firmwares(code_name):
+##### Codes comparison #####
+def load_codes(code_name):
     '''
-    Load firmware intital (vo) and extracted (bin)
+    Load code intital (vo) and extracted (bin)
 
     Parameters
     ----------
@@ -150,9 +150,9 @@ def load_firmwares(code_name):
     Returns
     ----------
     vo_firm : bytes
-        The original firmware.
+        The original code.
     lce_firm : bytes
-        The extracted firmware by LCE. For an unknown reason there
+        The extracted code by LCE. For an unknown reason there
         are 0xa0a0 between ervry groups of 4 bytes, these 0xa0a0 are remove.
 
     '''
@@ -162,7 +162,7 @@ def load_firmwares(code_name):
     with open(f"{SIM_RES_DIR}/{code_name}/{LCE_FOLDER}/{code_name}_lce.hex",'rb') as lce_file :
         lce_firm_untreated = binascii.hexlify(lce_file.read())
 
-    # Remove 0x0a0a between every 4 bytes of extracted firmware
+    # Remove 0x0a0a between every 4 bytes of extracted code
     lce_firm=b''
     for index in range (len(lce_firm_untreated)):
         if index%12<8:
@@ -210,7 +210,7 @@ def parse_firm():
     ----------
     card_unmatched_instr : int
         Cardinal (=number) of different instruction between original and
-        extracted firmwares.
+        extracted codes.
 
     Remarks
     ----------
@@ -218,7 +218,7 @@ def parse_firm():
     o_lce_i0 : offset for lce due to instruction 0 ignorance
 
     '''
-    vo_firm, lce_firm = load_firmwares(args.code_name)
+    vo_firm, lce_firm = load_codes(args.code_name)
     firm_size_addr=get_code_section_size_addr(args.code_name)
 
     o_lce_i0 = 0  # offset for lce due to instruction 0 ignorance
@@ -238,7 +238,7 @@ def parse_firm():
 
 
     fuse_error = True if args.delay_lce else False
-    # Compare both firmware
+    # Compare both code
     while i_4b <= i_4b_max:
         if args.ignore_instr_0 and lce_firm[o_lce+i_4b+o_lce_i0:o_lce+i_4b+o_lce_i0+8] == b'00000000':
             o_lce_i0 += 8

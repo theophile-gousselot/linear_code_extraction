@@ -33,7 +33,7 @@ SIMULATOR=verilator
 TB_TOP_FILE=tb_top_verilator.sv
 LCE=false
 LCE_DELAY=0
-ATTACk_ID=0
+ATTACK_ID=0
 RTL_FLAG="CV_CORE_BRANCH=init_cv32e40p"
 ID_RTL_FLAG="--rtl INIT"
 RTL="INIT"
@@ -78,7 +78,7 @@ while [ : ]; do
         if [[ ${ATTACK_ID} > 0 ]]; then
             LCE=true; LCE_FLAG="--lce";
         else
-            ATTACK_ID=1;
+            ATTACK_ID=0;
         fi       
         shift 2; ;;
 
