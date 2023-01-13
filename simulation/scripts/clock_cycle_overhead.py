@@ -44,6 +44,8 @@ CODE_NAMES = [
 parser = argparse.ArgumentParser(description="Script to analyse and plot clock cycle overheads as a function of WWDL (Worst Wanted Detection Latency).")
 parser.add_argument("code_names")
 parser.add_argument("-s","--save_fig", help="save a pdf of the plot", action="store_true")
+parser.add_argument("-b","--bar", help="display bars instead of SMM or DIM an points and curves (plot)",
+        type=str, nargs='?', const='', default='')
 parser.add_argument("-a","--average", help="Plot the average", action="store_true")
 parser.add_argument(
     "-i",
@@ -227,7 +229,7 @@ def plot_clock_cycle_overheads(code_names):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.gca().invert_xaxis()
-    plt.xlabel("Worst wanted detection latency (in instructions executed)")  #("Latency detection (in instructions)")
+    plt.xlabel("Detection Latency Target (in instructions executed)")  #("Latency detection (in instructions)")
     plt.ylabel("Clock cycle overheads (%)")
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     if args.save_fig:
@@ -236,6 +238,67 @@ def plot_clock_cycle_overheads(code_names):
         for code in overheads[list(overheads.keys())[0]]:
             short_code_names+=f"-{code[0:3]}" if code not in FORBIDDEN_CODE_NAME else ""
         plt.savefig(f"{PLOT_PATH}/plot_overheads_and_wwdls__range{int(xmin)}-{int(xmax)}__{avg_mode}f{short_code_names}.pdf")
+    plt.show()
+
+def bar_clock_cycle_overheads(code_names):
+    '''
+    Display bars of clock cycle overheads in function of wwdl. Figure can be saved.
+
+    Parameters
+    ----------
+    code_names : list of str
+        Names of all codes to be plotted.
+    '''
+    # Plot setup
+    plt.rc('font', family='serif')
+    plt.rcParams['hatch.linewidth'] = 1
+
+
+    # Log overheads file
+    if args.log_id != '':
+        log_ids = list(args.log_id.split(" "))
+        log_file_paths = []
+        for log_id in log_ids:
+            log_file_paths.append(f"{LOG_FILE_OVERHEAD_PATH}-{log_id}{LOG_FILE_OVERHEAD_EXTENSION}")
+    elif args.log_path == '':
+        log_file_paths = [find_last_log_file_overhead()]
+    else:
+        log_file_paths = list(args.log_path.split(" "))
+
+
+    rtl=args.bar
+    x = np.arange(26-12-1) if rtl == 'DIM' else np.arange(26-12)    # the label locations
+    width = 0.26
+    fig, ax = plt.subplots(figsize=(6.5, 3.1))
+    labels = []
+#    ax.plot([], [], ' ', label=rtl)
+
+    for log_file_path in log_file_paths:
+        wwdl, overheads = get_overheads_codes(code_names, log_file_path)
+
+        wwdl_targeted = ['15', '30', '60']
+
+        some_overheads={"15":[], "30":[], "60":[]}
+        for code in overheads[rtl]:
+            if code not in ['dhrystone', 'fibonacci', 'nettle-aes', 'nettle-sha256', 'picojpeg', 'primecount', 'qrduino', 'sglib-combined', 'slre', 'st', 'statemate', 'ud']:
+                labels.append(code)
+                for wwdl_t in wwdl_targeted:
+                    some_overheads[wwdl_t].append((overheads[rtl][code][int(wwdl_t)]-1)*100)
+        rects1 = ax.bar(x - width, some_overheads['60'], width, label='DLT=60', color='white', edgecolor = "black", hatch='//////')
+        rects2 = ax.bar(x , some_overheads['30'], width, label='DLT=30', color='white', edgecolor = "black")
+        rects2 = ax.bar(x + width, some_overheads['15'], width, label='DLT=15', color='white', edgecolor = "black", hatch='......')
+
+    ax.set_ylim((0, 16.5))
+    ax.set_ylabel('Clock cycle overhead (%)')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=60, ha='center')
+    ax.legend(loc="upper center", ncol=len(x), framealpha=1)
+    ax.set_title(rtl)
+
+    fig.tight_layout()
+
+    if args.save_fig:
+        plt.savefig(f"{PLOT_PATH}/bar_clk_cycle_overheads_{rtl}.pdf")
     plt.show()
 
 def main():
@@ -249,7 +312,10 @@ def main():
     if not set(code_names).isdisjoint(FORBIDDEN_CODE_NAME):
         raise ValueError(f"Codes shoudl not be named like this names {FORBIDDEN_CODE_NAME}.")
 
-    plot_clock_cycle_overheads(code_names)
+    if args.bar in ['SMM', 'DIM']:
+        bar_clock_cycle_overheads(code_names)
+    else:
+        plot_clock_cycle_overheads(code_names)
 
 
 if __name__ == "__main__":
