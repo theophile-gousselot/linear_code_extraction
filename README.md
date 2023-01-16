@@ -128,7 +128,7 @@ To quickly get familiar with execution simulations, follow the instructions abov
    ```sh
     python3 clock_cycle_overhead.py all -l ../log/already_computed/lce_overhead__INIT-SMM-DIM__wwdl_6-150.log -b SMM
     python3 clock_cycle_overhead.py all -l ../log/already_computed/lce_overhead__INIT-SMM-DIM__wwdl_6-150.log -b DIM
-    ```
+   ```
 
 16. Graph curves of already computed overhead campaign by ourselves for large number of WWDL.
    ```sh 
