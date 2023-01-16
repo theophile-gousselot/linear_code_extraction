@@ -1,4 +1,4 @@
-''' Script to analyse and plot clock cycle overheads as a fucntion of wwdl (Worst Wanted Detection Latency). '''
+''' Script to analyse and plot clock cycle overheads as a fucntion of DLT (Worst Wanted Detection Latency). '''
 
 import argparse
 import numpy as np
@@ -41,9 +41,24 @@ CODE_NAMES = [
     'ud',
     'wikisort']
 
+CODE_NAMES_TO_REDUCE = [
+    'dhrystone', 
+	'fibonacci', 
+	'nettle-aes', 
+	'nettle-sha256', 
+	'picojpeg', 
+	'primecount', 
+	'qrduino', 
+	'sglib-combined', 
+	'slre', 
+	'st', 
+	'statemate', 
+	'ud']
+
 parser = argparse.ArgumentParser(description="Script to analyse and plot clock cycle overheads as a function of WWDL (Worst Wanted Detection Latency).")
 parser.add_argument("code_names")
 parser.add_argument("-s","--save_fig", help="save a pdf of the plot", action="store_true")
+parser.add_argument("-r","--reduced_nb_codes", help="do not graph clock cycle overhead for every codes", action="store_true")
 parser.add_argument("-b","--bar", help="display bars instead of SMM or DIM an points and curves (plot)",
         type=str, nargs='?', const='', default='')
 parser.add_argument("-a","--average", help="Plot the average", action="store_true")
@@ -267,9 +282,17 @@ def bar_clock_cycle_overheads(code_names):
 
 
     rtl=args.bar
-    x = np.arange(26-12-1) if rtl == 'DIM' else np.arange(26-12)    # the label locations
+    nb_codes = 26-12 if args.reduced_nb_codes else 26
+    x = np.arange(nb_codes-1) if rtl == 'DIM' else np.arange(nb_codes)    # the label locations
+    if rtl == "SMM":
+        bar_title = "Security Marker Monitoring (SMM)"
+    elif rtl == "DIM":
+        bar_title = "Discontinuity Instruction Monitoring (DIM)"
+    else:
+        raise ValueError(f"RTL should be SMM or DIM")
+
     width = 0.26
-    fig, ax = plt.subplots(figsize=(6.5, 3.1))
+    fig, ax = plt.subplots(figsize=(6.5*nb_codes/14, 3.1))
     labels = []
 #    ax.plot([], [], ' ', label=rtl)
 
@@ -280,20 +303,21 @@ def bar_clock_cycle_overheads(code_names):
 
         some_overheads={"15":[], "30":[], "60":[]}
         for code in overheads[rtl]:
-            if code not in ['dhrystone', 'fibonacci', 'nettle-aes', 'nettle-sha256', 'picojpeg', 'primecount', 'qrduino', 'sglib-combined', 'slre', 'st', 'statemate', 'ud']:
-                labels.append(code)
-                for wwdl_t in wwdl_targeted:
-                    some_overheads[wwdl_t].append((overheads[rtl][code][int(wwdl_t)]-1)*100)
-        rects1 = ax.bar(x - width, some_overheads['60'], width, label='DLT=60', color='white', edgecolor = "black", hatch='//////')
+            if args.reduced_nb_codes and code in CODE_NAMES_TO_REDUCE:
+                continue
+            labels.append(code)
+            for wwdl_t in wwdl_targeted:
+                some_overheads[wwdl_t].append((overheads[rtl][code][int(wwdl_t)]-1)*100)
+        rects1 = ax.bar(x - width, some_overheads['60'], width, label='DLT=60', color='white', edgecolor = "black", hatch='////')
         rects2 = ax.bar(x , some_overheads['30'], width, label='DLT=30', color='white', edgecolor = "black")
-        rects2 = ax.bar(x + width, some_overheads['15'], width, label='DLT=15', color='white', edgecolor = "black", hatch='......')
+        rects2 = ax.bar(x + width, some_overheads['15'], width, label='DLT=15', color='white', edgecolor = "black", hatch='....')
 
     ax.set_ylim((0, 16.5))
     ax.set_ylabel('Clock cycle overhead (%)')
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=60, ha='center')
     ax.legend(loc="upper center", ncol=len(x), framealpha=1)
-    ax.set_title(rtl)
+    ax.set_title(bar_title)
 
     fig.tight_layout()
 

@@ -124,8 +124,14 @@ To quickly get familiar with execution simulations, follow the instructions abov
    python3 clock_cycle_overhead.py all -h
    ```
 
-15. Plot an already computed overhead campaign by ourselves, containing 24 codes, for large number of WWDL. This campaign was getting by executing `./run_campaign.sh -r "INIT SMM DIM" -a 0 -o`.
+15. Graph bars of already computed overhead campaign by ourselves, containing 24 codes. This campaign was getting by executing `./run_campaign.sh -r "INIT SMM DIM" -a 0 -o`.
    ```sh
+    python3 clock_cycle_overhead.py all -l ../log/already_computed/lce_overhead__INIT-SMM-DIM__wwdl_6-150.log -b SMM
+    python3 clock_cycle_overhead.py all -l ../log/already_computed/lce_overhead__INIT-SMM-DIM__wwdl_6-150.log -b DIM
+    ```
+
+16. Graph curves of already computed overhead campaign by ourselves for large number of WWDL.
+   ```sh 
    python3 clock_cycle_overhead.py all -l ../log/already_computed/lce_overhead__INIT-SMM-DIM__wwdl_6-150.log
    ```
 
