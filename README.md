@@ -4,12 +4,12 @@ This git folder completes the article **Linear Code Extraction: Practice, Counte
 
 The chosen core is the CV32E40P, 4-stage in-order 32-bit RISC-V, representative of small ISA RISC-V cores and provided by [OpenHW Group](https://www.openhwgroup.org/).
 
-The unprotected and protected CV32E40P descriptions are available in a [second git folder](https://github.com/anonymous-submission002/cv32e40p_rtl).
+The unprotected and protected CV32E40P descriptions are available in a [second git folder](https://github.com/theophile-gousselot/cv32e40p_rtl).
 
 ### TABLE OF CONTENTS
 - [Linear code extraction](#linear-code-extraction)
   * [Table of contents](#table-of-contents)
-- [Simulation framework](#simulation-framework)
+- [Simulation framework](#simulati/anonon-framework)
   * [Getting Started](#getting-started)
       - [Installation](#installation)
       - [Setup Simulation framework](#setup-simulation-framework)
@@ -40,7 +40,7 @@ The **simulation** folder contains the simulation framework implemented to simul
 
 1. Clone this git folder
    ```sh
-   git clone https://github.com/anonymous-submission002/linear_code_extraction.git
+   git clone https://github.com/theophile-gousselot/linear_code_extraction.git
    cd linear_code_extraction
    ```
 
@@ -216,7 +216,7 @@ The interesting simulation outputs available in [log file](#log-files) are:
 
 The main simulation parameters for `simulate.sh` and `run_campaigns.sh` scripts are detailed. 
 
-- **RTL [ -r / --rtl ]:** Select which [core version(s)](https://github.com/anonymous-submission002/cv32e40p_rtl) will be used for simulation.
+- **RTL [ -r / --rtl ]:** Select which [core version(s)](https://github.com/theophile-gousselot/cv32e40p_rtl) will be used for simulation.
 
 - **Linear code execution attack strategies [ -a / --attacks ]:**
 Select which attack strategies will be used to ensure a Linear Code Extraction.
@@ -237,7 +237,7 @@ The option `--attacks 0` do not enable LCE.
 
 
 - **Worst Wanted Detection Latency [ -l / --wwdl ]:**
-Select which Worst Wanted Detection Latency is used to initialized LAM, SMM or DIM counters. The WWDL defines WWDL parameter in [test bench](https://github.com/anonymous-submission002/linear_code_extraction/blob/main/simulation/core-v-verif/cv32e40p/tb/core/tb_top_verilator.sv#L206). 
+Select which Worst Wanted Detection Latency is used to initialized LAM, SMM or DIM counters. The WWDL defines WWDL parameter in [test bench](https://github.com/theophile-gousselot/linear_code_extraction/blob/main/simulation/core-v-verif/cv32e40p/tb/core/tb_top_verilator.sv#L206). 
 
 
 - **Delay [ -d / --delay_lce ]**:
@@ -257,7 +257,7 @@ The **fpga** folder contains the necessary to reproduce FPGA-based proof-of-conc
 
 1. Clone this git folder
    ```sh
-   git clone https://github.com/anonymous-submission002/linear_code_extraction.git
+   git clone https://github.com/theophile-gousselot/linear_code_extraction.git
    cd linear_code_extraction
    ```
 
