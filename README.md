@@ -19,7 +19,7 @@ The unprotected and protected CV32E40P descriptions are available in a [second g
     + [Log files](#log-files)
     + [Simulation outputs](#simulation-outputs)
     + [Simulation parameters](#simulation-parameters)
-- [FPGA-based proof of concept](#fpga-based-proof-of-concept)
+- [FPGA-based demo](#fpga-based-demo)
   * [Getting Started](#getting-started-1)
       - [Installation](#installation-1)
       - [Setup FPGA-based proof of concept](#setup-fpga-based-proof-of-concept)
@@ -247,9 +247,9 @@ Select the delay in instruction before the beginning of ensuring the linear exec
 Select the name of the code(s) to be executed. The CORE-V-VERIF codes are available (*[dhrystone](../core-v-verif/cv32e40p/tests/programs/custom/dhrystone) / [fibonacci](../core-v-verif/cv32e40p/tests/programs/custom/fibonacci)* ). We select only the two of them which are not tests but real codes. All the [Embench](https://github.com/embench/embench-iot) codes are available as they are representative of embedded codes (*[crc32](../core-v-verif/cv32e40p/tests/programs/custom/crc32) / [cubic](../core-v-verif/cv32e40p/tests/programs/custom/cubic) / [edn](../core-v-verif/cv32e40p/tests/programs/custom/edn) / [huffbench](../core-v-verif/cv32e40p/tests/programs/custom/huffbench) / [matmult-int](../core-v-verif/cv32e40p/tests/programs/custom/matmult-int) / [md5sum](../core-v-verif/cv32e40p/tests/programs/custom/md5sum) / [minver](../core-v-verif/cv32e40p/tests/programs/custom/minver) / [mont64](../core-v-verif/cv32e40p/tests/programs/custom/mont64) / [nbody](../core-v-verif/cv32e40p/tests/programs/custom/nbody) / [nettle-aes](../core-v-verif/cv32e40p/tests/programs/custom/nettle-aes) / [nettle-sha256](../core-v-verif/cv32e40p/tests/programs/custom/nettle-sha256) / [nsichneu](../core-v-verif/cv32e40p/tests/programs/custom/nsichneu) / [picojpeg](../core-v-verif/cv32e40p/tests/programs/custom/picojpeg) / [primecount](../core-v-verif/cv32e40p/tests/programs/custom/primecount) / [qrduino](../core-v-verif/cv32e40p/tests/programs/custom/qrduino) / [sglib-combined](../core-v-verif/cv32e40p/tests/programs/custom/sglib-combined) / [slre](../core-v-verif/cv32e40p/tests/programs/custom/slre) / [st](../core-v-verif/cv32e40p/tests/programs/custom/st) / [statemate](../core-v-verif/cv32e40p/tests/programs/custom/statemate) / [tarfind](../core-v-verif/cv32e40p/tests/programs/custom/tarfind) / [ud](../core-v-verif/cv32e40p/tests/programs/custom/ud) / [wikisort](../core-v-verif/cv32e40p/tests/programs/custom/wikisort)* ).
 
 
-# FPGA-based proof of concept
+# FPGA-based demo
 
-The **fpga** folder contains the necessary to reproduce FPGA-based proof-of-concept of the Linear Code Extraction and the countermeasures. Firstly, an editing [CORE-V MCU](https://github.com/openhwgroup/core-v-mcu) microcontroller provided by OpenHW Group, is available. Secondly, a guide explains step-by-step methodology to perform a Linear Code Extraction on the microcontroller in the FPGA.
+The FPGA-based demonstration targets to quickly assess and observe core behaviors for many LCE attack paths on protected or not core. For that purpose, the Hardware identification and the FIB edits steps are emulated on FPGA. The **fpga** folder contains the necessary to reproduce FPGA-based proof-of-concept of the Linear Code Extraction and the countermeasures. Firstly, an editing [CORE-V-MCU](https://github.com/openhwgroup/core-v-mcu) microcontroller provided by OpenHW Group, is available. Secondly, a guide explains step-by-step methodology to perform a Linear Code Extraction on the microcontroller in the FPGA.
 
 ## Getting Started
 
@@ -264,7 +264,74 @@ The **fpga** folder contains the necessary to reproduce FPGA-based proof-of-conc
 ### Setup FPGA-based proof of concept
 1. Navigate to the `fpga` folder
    ```sh
-   cd fpga
+   cd fpga_based_demo
    ```
 
-### Rest is coming soon
+2. Load bitstream to the FPGA. There are two ways, using a JTAG and Vivado Hardware Manager (A) or by using a SD Card (B).
+    
+    A. JTAG (allows the Integrated Logic Analyzer)
+    - Connect the micro-USB cable from your computer to the board.
+    - Put the jumper JP4 to JTAG.
+    - Open the vivado Hardware manager.
+    - Open target by selecting a JTAG Frequency of **3750000** (if not ILA will not work).
+    - Program the device by selecting the `core-v-mcu_lce_demo.bit` and `core-v-mcu_lce_demo.ltx` 
+
+    - By adapting the script `hw_demo_lce.tcl` to your case (board name). You can perform all steps above by running:
+   ```sh
+   vivado -source hw_demo_lce.tcl
+   ```
+   
+    B. SD Card (do not allows the Integrated Logic Analyzer)
+    - Copy the `core-v-mcu_lce_demo.bit` file into a SD card, then insert it in the FPGA board.
+    - Put the jumper JP4 to SD/USB.
+    - JP Power-up the board and press the PROG button if necessary.
+
+3. Connect probes to PMOD:
+    - AA8 (reset)
+    - Y6 (clock)
+    - V9 (bit4)
+    - V6 (bit5)
+
+4. Place switches to the wanted execution (read [Demo Configuration](#demo-configuration-(switches))
+
+8. Explore the core-v-mcu for LCE vivado project
+   ```sh
+   cd core-v-mcu_lce_demo
+   vivado nexys-a7-100t-vivado/openhwgroup.org_systems_core-v-mcu_0.xpr 
+   ```
+
+ 
+load bitstream
+
+vivado
+sd card
+
+probes
+
+refer to switches
+
+
+### FPGA-based demo Operating
+
+A bitstream of a microcontroller [CORE-V-MCU](https://github.com/openhwgroup/core-v-mcu) containing a cv32e40p core and a code in memory is downloaded to an Artix 7 FPGA (xc7a200tsbg484-1) on a Nexys Video board.
+<p align="center">
+    <img src="doc/diagrams_lce_fpga_hw_demo_framework_oscillo.jpg" alt="drawing" width=800" class="center"/>
+</p>
+#### Microprobing emulation
+ The LCE is emulated by replacing the microprobes inducing a linear execution by inserting multiplexers on targeted signals (e.g., the instruction register reset. These multiplexers are driven by switches which select the original input or the forced one. The microprobes eavesdropping the instruction bus are emulated by oscilloscope probes connected to FPGA board outputs. To imitate an attacker who has few microprobes, only four oscilloscope probes are connected to the FPGA board outputs. Bits of the instruction bus are routed to these outputs. Clock and reset signals are also routed for synchronization purposes. Thus, sixteen LCEs are run to extract all the 32 bits of instruction bus. An Integrated Logic Analyzer component allows emulating these sixteen executions. The extracted waveforms are then digitalized and blended by software processing to rebuild the code. This extracted code can be disassembled to be analyzed or compared to the one in memory. Concurrently, other switches enable and select one of the countermeasures integrated into the cv32e40p core. These switches and the probes connected to the oscilloscope are highlighted in the picture of the FPGA board setup.
+
+#### Demo configuration (switches)
+By enabling some switches of the FPGA board, it is possible to perform a LCE with a specific attack path to induce a linear excution.
+Countermeasures could be enabled by using swicthes.
+<p align="center">
+    <img src="doc/picture_nexys_video_hw_demo.jpg" alt="drawing" width=800" class="center"/>
+</p>
+<p align="center">
+    <img src="doc/diagrams_lce_fpga_hw_demo_switches.jpg" alt="drawing" width=800" class="center"/>
+</p>
+
+### Observable
+
+#### oscilocope
+
+#### ila debug
