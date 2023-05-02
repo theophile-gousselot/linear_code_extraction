@@ -292,7 +292,7 @@ The FPGA-based demonstration targets to quickly assess and observe core behavior
     - V9 (bit4)
     - V6 (bit5)
 
-4. Place switches to the wanted execution (read [Demo Configuration](#demo-configuration-(switches))
+4. Place switches to the wanted execution (read [Demo Configuration](#demo-configuration-(switches)))
 
 8. Explore the core-v-mcu for LCE vivado project
    ```sh
@@ -300,29 +300,22 @@ The FPGA-based demonstration targets to quickly assess and observe core behavior
    vivado nexys-a7-100t-vivado/openhwgroup.org_systems_core-v-mcu_0.xpr 
    ```
 
- 
-load bitstream
-
-vivado
-sd card
-
-probes
-
-refer to switches
 
 
 ### FPGA-based demo Operating
 
 A bitstream of a microcontroller [CORE-V-MCU](https://github.com/openhwgroup/core-v-mcu) containing a cv32e40p core and a code in memory is downloaded to an Artix 7 FPGA (xc7a200tsbg484-1) on a Nexys Video board.
 <p align="center">
-    <img src="doc/diagrams_lce_fpga_hw_demo_framework_oscillo.jpg" alt="drawing" width=800" class="center"/>
+    <img src="doc/diagrams_lce_fpga_hw_demo_framework_oscillo.jpg" alt="drawing" width=500" class="center"/>
 </p>
+
+
 #### Microprobing emulation
  The LCE is emulated by replacing the microprobes inducing a linear execution by inserting multiplexers on targeted signals (e.g., the instruction register reset. These multiplexers are driven by switches which select the original input or the forced one. The microprobes eavesdropping the instruction bus are emulated by oscilloscope probes connected to FPGA board outputs. To imitate an attacker who has few microprobes, only four oscilloscope probes are connected to the FPGA board outputs. Bits of the instruction bus are routed to these outputs. Clock and reset signals are also routed for synchronization purposes. Thus, sixteen LCEs are run to extract all the 32 bits of instruction bus. An Integrated Logic Analyzer component allows emulating these sixteen executions. The extracted waveforms are then digitalized and blended by software processing to rebuild the code. This extracted code can be disassembled to be analyzed or compared to the one in memory. Concurrently, other switches enable and select one of the countermeasures integrated into the cv32e40p core. These switches and the probes connected to the oscilloscope are highlighted in the picture of the FPGA board setup.
 
 #### Demo configuration (switches)
 By enabling some switches of the FPGA board, it is possible to perform a LCE with a specific attack path to induce a linear excution.
-Countermeasures could be enabled by using swicthes.
+Countermeasures could be enabled by using switcœhes.
 <p align="center">
     <img src="doc/picture_nexys_video_hw_demo.jpg" alt="drawing" width=800" class="center"/>
 </p>
@@ -332,6 +325,24 @@ Countermeasures could be enabled by using swicthes.
 
 ### Observable
 
-#### oscilocope
+#### Oscillocope
 
-#### ila debug
+On the oscilloscope you can observe:
+
+##### LCE by Freezing attack path
+
+<p align="center">
+    <img src="doc/aFreezing_cmNone_annotated.jpg" alt="drawing" width=800" class="center"/>
+</p>
+
+
+##### LCE by Freezing attack path when core protected by SMM
+
+<p align="center">
+    <img src="doc/aFreezing_cmSMM.png" alt="drawing" width=800" class="center"/>
+</p>
+
+
+
+#### Integrated Logic Analyzer (ILA) debug
+If you had download the bitstream by using the Hardware manager, you can visualize a lot of internal signals to better understand the LCE operating. These signals are accessible through Integrated Logic Analyzer (ILA) component.
