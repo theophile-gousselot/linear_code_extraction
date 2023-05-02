@@ -1,0 +1,29 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Thu Nov  3 15:27:00 2022
+[*]
+[dumpfile] "/home/theophile/these/github/git_for_papers/linear_code_extraction/simulation/core-v-verif/cv32e40p/sim/core/verilator_tb.vcd"
+[dumpfile_mtime] "Thu Nov  3 15:21:47 2022"
+[dumpfile_size] 121381078
+[savefile] "/home/theophile/these/github/git_for_papers/linear_code_extraction/simulation/core-v-verif/cv32e40p/sim/core/signals.gtkw"
+[timestart] 240
+[size] 1667 709
+[pos] -1 -1
+*-5.004533 285 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.tb_top_verilator.
+[treeopen] TOP.tb_top_verilator.cv32e40p_tb_wrapper_i.
+[treeopen] TOP.tb_top_verilator.cv32e40p_tb_wrapper_i.cv32e40p_core_i.
+[treeopen] TOP.tb_top_verilator.cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.
+[sst_width] 293
+[signals_width] 303
+[sst_expanded] 1
+[sst_vpaned_height] 288
+@28
+TOP.tb_top_verilator.clk_i
+@22
+TOP.tb_top_verilator.cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.pc_if_o[31:0]
+TOP.tb_top_verilator.cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.instr_rdata_i[31:0]
+TOP.tb_top_verilator.cv32e40p_tb_wrapper_i.cv32e40p_core_i.if_stage_i.instr_decompressed[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

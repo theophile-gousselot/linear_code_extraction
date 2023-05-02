@@ -38,6 +38,7 @@ RTL_FLAG="CV_CORE_BRANCH=init_cv32e40p"
 ID_RTL_FLAG="--rtl INIT"
 RTL="INIT"
 MONITORING=0
+RISCV=/opt/corev/
 
 
 ##### Argument analysis

@@ -1,6 +1,7 @@
 # Linear code extraction
 
-This git folder completes the article **Linear Code Extraction: Practice, Countermeasures, Proof-of-Concept on RISC-V**. It provides a simulation framework to simulate the execution of a code on core, and an FPGA-based proof of concept. **Both are independent**.
+This git folder completes the article **Lightweight Countermeasures Against Original
+Linear Code Extraction Attacks on a RISC-V Core**. It provides a simulation framework to simulate the execution of a code on core, and an FPGA-based proof of concept. **Both are independent**.
 
 The chosen core is the CV32E40P, 4-stage in-order 32-bit RISC-V, representative of small ISA RISC-V cores and provided by [OpenHW Group](https://www.openhwgroup.org/).
 
@@ -245,6 +246,14 @@ Select the delay in instruction before the beginning of ensuring the linear exec
 
 - **Code_name [ -c / --codes ]**:
 Select the name of the code(s) to be executed. The CORE-V-VERIF codes are available (*[dhrystone](../core-v-verif/cv32e40p/tests/programs/custom/dhrystone) / [fibonacci](../core-v-verif/cv32e40p/tests/programs/custom/fibonacci)* ). We select only the two of them which are not tests but real codes. All the [Embench](https://github.com/embench/embench-iot) codes are available as they are representative of embedded codes (*[crc32](../core-v-verif/cv32e40p/tests/programs/custom/crc32) / [cubic](../core-v-verif/cv32e40p/tests/programs/custom/cubic) / [edn](../core-v-verif/cv32e40p/tests/programs/custom/edn) / [huffbench](../core-v-verif/cv32e40p/tests/programs/custom/huffbench) / [matmult-int](../core-v-verif/cv32e40p/tests/programs/custom/matmult-int) / [md5sum](../core-v-verif/cv32e40p/tests/programs/custom/md5sum) / [minver](../core-v-verif/cv32e40p/tests/programs/custom/minver) / [mont64](../core-v-verif/cv32e40p/tests/programs/custom/mont64) / [nbody](../core-v-verif/cv32e40p/tests/programs/custom/nbody) / [nettle-aes](../core-v-verif/cv32e40p/tests/programs/custom/nettle-aes) / [nettle-sha256](../core-v-verif/cv32e40p/tests/programs/custom/nettle-sha256) / [nsichneu](../core-v-verif/cv32e40p/tests/programs/custom/nsichneu) / [picojpeg](../core-v-verif/cv32e40p/tests/programs/custom/picojpeg) / [primecount](../core-v-verif/cv32e40p/tests/programs/custom/primecount) / [qrduino](../core-v-verif/cv32e40p/tests/programs/custom/qrduino) / [sglib-combined](../core-v-verif/cv32e40p/tests/programs/custom/sglib-combined) / [slre](../core-v-verif/cv32e40p/tests/programs/custom/slre) / [st](../core-v-verif/cv32e40p/tests/programs/custom/st) / [statemate](../core-v-verif/cv32e40p/tests/programs/custom/statemate) / [tarfind](../core-v-verif/cv32e40p/tests/programs/custom/tarfind) / [ud](../core-v-verif/cv32e40p/tests/programs/custom/ud) / [wikisort](../core-v-verif/cv32e40p/tests/programs/custom/wikisort)* ).
+
+
+
+
+
+
+
+
 
 
 # FPGA-based demo

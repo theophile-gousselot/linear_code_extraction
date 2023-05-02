@@ -244,7 +244,7 @@ def plot_clock_cycle_overheads(code_names):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.gca().invert_xaxis()
-    plt.xlabel("Detection Latency Target (in instructions executed)")  #("Latency detection (in instructions)")
+    plt.xlabel("Detection Latency Target (in executed instructions)")  #("Latency detection (in instructions)")
     plt.ylabel("Clock cycle overheads (%)")
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     if args.save_fig:
