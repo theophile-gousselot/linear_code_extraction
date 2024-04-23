@@ -1,0 +1,7 @@
+*.swp
+vivado.jou
+vivado.log
+vivado_*.jou
+vivado_*.log
+*.Xil
+vivado_pid*.str
