@@ -3,9 +3,8 @@
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import style
 import os
-style.use('tableau-colorblind10')
+plt.style.use('tableau-colorblind10')
 
 LOG_FILE_OVERHEAD_PATH = "../log/lce_overhead"
 LOG_FILE_OVERHEAD_EXTENSION = ".log"
