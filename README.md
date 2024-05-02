@@ -62,7 +62,7 @@ The **simulation** folder contains the simulation framework implemented to simul
    export COREV="YES"
    ```
 
-4. Install Verilator by following the [Git Quick Install](https://veripool.org/guide/latest/install.html#git-quick-install). **Be carefull to select the tag v2.220** by running `git checkout v2.220` before running `autoconf`.
+4. Install Verilator by following the [Git Quick Install](https://veripool.org/guide/latest/install.html#git-quick-install). **Be carefull to select the tag v4.220** by running `git checkout v2.220` before running `autoconf`.
 
 The setup is ready ! Simulate, with verilator, a code execution on the cv32e40p core is now possible.
 
