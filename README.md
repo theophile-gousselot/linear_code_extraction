@@ -62,7 +62,7 @@ The **simulation** folder contains the simulation framework implemented to simul
    export COREV="YES"
    ```
 
-4. Install Verilator by following the [Git Quick Install](https://veripool.org/guide/latest/install.html#git-quick-install). **Be carefull to select the tag v4.220** by running `git checkout v2.220` before running `autoconf`.
+4. Install Verilator by following the [Git Quick Install](https://veripool.org/guide/latest/install.html#git-quick-install). **Be carefull to select the tag v4.220** by running `git checkout v4.220` before running `autoconf`.
 
 The setup is ready ! Simulate, with verilator, a code execution on the cv32e40p core is now possible.
 
@@ -141,7 +141,7 @@ To quickly get familiar with execution simulations, follow the instructions abov
    python3 clock_cycle_overhead.py all -l ../log/already_computed/lce_overhead__INIT-SMM-DIM__wwdl_6-150.log -a
    ```
 
-17. Finally, explore the already computed log file `../log/already_computed/lce__INIT-LAM-SMM-DIM__a_0-1-2-3__wwdl_10-100.log` getting by executing `./run_campaign.sh -r "INIT LAM SMM DIM" -a "0 1 2 3" -l "10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100`
+17. Finally, explore the already computed log file `../log/already_computed/lce__INIT-LAM-SMM-DIM__a_0-1-2-3__wwdl_10-100.log` getting by executing `./run_campaign.sh -r "INIT LAM SMM DIM" -a "0 1 2 3" -l "10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100"`
 
 18. To remove all log generated and to clean core-v-verif use:
    ```sh
@@ -228,9 +228,10 @@ The option `--attacks 0` do not enable LCE.
 
 |           Strategy          	|                                                                                     Forcing                                                                                    	|
 |:---------------------------:	|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:	|
-|        (I) - Feezing       	| cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[6]=1'b0<br>cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[4:2]=3'b101 	|
-|   (II) - Instruction edits  	|                                                                 cv32e40p_core_i.if_stage_i.instr_valid = 1'h0                                                                 	|
+|        (I) - Feezing       	  |                                                                 cv32e40p_core_i.if_stage_i.instr_valid = 1'h0                                                                 	|
+|   (II) - Instruction edits  	| cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[6]=1'b0<br>cv32e40p_core_i.if_stage_i.prefetch_buffer_i.instruction_obi_i.resp_rdata_o[4:2]=3'b101 	|
 | (III) - Linear mode forcing 	|                                                                   cv32e40p_core_i.id_stage_i.pc_set_o = 1'h0                                                                   	|
+
 
 <p align="center">
     <img src="doc/diagram_lce_linear_extraction_strategies.jpg" alt="drawing" width="500" class="center"/>
